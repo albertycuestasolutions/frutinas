@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scroll Scrubbing</title>
+  <style>
+    /* ─── RESET & BASE ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --frames: 192;
+      --scroll-height: 600vh; /* ← ajusta: más vh = scroll más lento */
+    }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'DM Mono', 'Courier New', monospace;
+      overscroll-behavior: none;
+    }
+
+    /* ─── PROGRESS BAR (top) ─── */
+    #progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 0%;
+      height: 2px;
+      background: #fff;
+      z-index: 100;
+      transition: width 0.05s linear;
+      mix-blend-mode: difference;
+    }
+
+    /* ─── HUD (esquina superior derecha) ─── */
+    #hud {
+      position: fixed;
+      top: 24px; right: 24px;
+      z-index: 50;
+      text-align: right;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    #hud.visible { opacity: 1; }
+    #hud-frame {
+      font-size: clamp(11px, 1.2vw, 13px);
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.8;
+    }
+    #hud-time {
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: #fff;
+    }
+
+    /* ─── LOADING SCREEN ─── */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; }
+
+    #loader-label {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+    #loader-bar-track {
+      width: 200px;
+      height: 1px;
+      background: rgba(255,255,255,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    #loader-bar-fill {
+      position: absolute;
+      left: 0; top: 0;
+      height: 100%;
+      width: 0%;
+      background: #fff;
+      transition: width 0.1s linear;
+    }
+    #loader-count {
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.5);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ─── SCROLL SECTION ─── */
+    #scroll-section {
+      height: var(--scroll-height);
+      position: relative;
+    }
+
+    /* ─── STICKY CANVAS WRAPPER ─── */
+    #canvas-wrapper {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ─── CANVAS ─── */
+    #seq-canvas {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* ─── SCROLL HINT (desaparece al scroll) ─── */
+    #scroll-hint {
+      position: fixed;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+      transition: opacity 0.4s;
+    }
+    #scroll-hint.hidden { opacity: 0; }
+    #scroll-hint span {
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+    }
+    .scroll-arrow {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.4));
+      animation: pulse-arrow 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse-arrow {
+      0%, 100% { opacity: 0.3; transform: scaleY(0.8); }
+      50% { opacity: 1; transform: scaleY(1); }
+    }
+
+    /* ─── SECCIÓN DESPUÉS DEL VIDEO (ejemplo) ─── */
+    #after-section {
+      min-height: 100vh;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    #after-section p {
+      font-size: clamp(12px, 1.5vw, 14px);
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── PROGRESS BAR ─── -->
+<div id="progress-bar"></div>
+
+<!-- ─── LOADER ─── -->
+<div id="loader">
+  <div id="loader-label">cargando secuencia</div>
+  <div id="loader-bar-track">
+    <div id="loader-bar-fill"></div>
+  </div>
+  <div id="loader-count">0 / 192</div>
+</div>
+
+<!-- ─── HUD ─── -->
+<div id="hud">
+  <div id="hud-frame">FRAME 001 / 192</div>
+  <div id="hud-time">0.00s</div>
+</div>
+
+<!-- ─── SCROLL HINT ─── -->
+<div id="scroll-hint">
+  <span>scroll</span>
+  <div class="scroll-arrow"></div>
+</div>
+
+<!-- ─── SECCIÓN PRINCIPAL ─── -->
+<section id="scroll-section">
+  <div id="canvas-wrapper">
+    <canvas id="seq-canvas" width="1280" height="720"></canvas>
+  </div>
+</section>
+
+<!-- ─── SECCIÓN POST-VIDEO (opcional, personaliza) ─── -->
+<section id="after-section">
+  <p>continúa tu contenido aquí</p>
+</section>
+
+
+<script>
+  /* ════════════════════════════════════════════
+     CONFIGURACIÓN — edita estos valores
+  ════════════════════════════════════════════ */
+  const CONFIG = {
+    totalFrames:  192,
+    frameDir:     './frames/',          // ← ruta a tu carpeta de frames
+    framePrefix:  'frame_',            // ← prefijo del archivo
+    framePad:     4,                   // ← dígitos (frame_0001 → 4)
+    frameExt:     'jpg',               // ← 'jpg' o 'webp'
+    fps:          24,                  // ← fps original del video
+    duration:     7.958,               // ← duración real (s)
+    preloadAll:   true,                // ← false = lazy load (ahorra RAM)
+    showHUD:      true,                // ← mostrar frame/tiempo en esquina
+  };
+
+  /* ════════════════════════════════════════════
+     ESTADO INTERNO — no tocar
+  ════════════════════════════════════════════ */
+  const canvas    = document.getElementById('seq-canvas');
+  const ctx       = canvas.getContext('2d', { alpha: false });
+  const loader    = document.getElementById('loader');
+  const loaderFill= document.getElementById('loader-bar-fill');
+  const loaderCnt = document.getElementById('loader-count');
+  const progressBar= document.getElementById('progress-bar');
+  const hud       = document.getElementById('hud');
+  const hudFrame  = document.getElementById('hud-frame');
+  const hudTime   = document.getElementById('hud-time');
+  const scrollHint= document.getElementById('scroll-hint');
+
+  const images    = new Array(CONFIG.totalFrames);
+  let loadedCount = 0;
+  let ready       = false;
+  let currentIndex= 0;
+  let rafPending  = false;
+
+  /* ─── Helpers ─── */
+  function framePath(i) {
+    const n = String(i + 1).padStart(CONFIG.framePad, '0');
+    return `${CONFIG.frameDir}${CONFIG.framePrefix}${n}.${CONFIG.frameExt}`;
+  }
+
+  function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+  /* ─── Precarga ─── */
+  function preload() {
+    return new Promise(resolve => {
+      let completed = 0;
+
+      function onLoad() {
+        completed++;
+        loadedCount = completed;
+        const pct = (completed / CONFIG.totalFrames * 100).toFixed(0);
+        loaderFill.style.width = pct + '%';
+        loaderCnt.textContent  = `${completed} / ${CONFIG.totalFrames}`;
+
+        // Dibuja primer frame en cuanto esté listo
+        if (completed === 1 && images[0]?.complete) {
+          ctx.drawImage(images[0], 0, 0, 1280, 720);
+        }
+
+        if (completed === CONFIG.totalFrames) resolve();
+      }
+
+      for (let i = 0; i < CONFIG.totalFrames; i++) {
+        const img = new Image();
+        img.src = framePath(i);
+        img.onload  = onLoad;
+        img.onerror = onLoad; // no bloquear si falta un frame
+        images[i]   = img;
+      }
+    });
+  }
+
+  /* ─── Renderizado ─── */
+  function drawFrame(index) {
+    const img = images[index];
+    if (img && img.complete && img.naturalWidth > 0) {
+      ctx.drawImage(img, 0, 0, 1280, 720);
+    }
+  }
+
+  function updateHUD(index, progress) {
+    if (!CONFIG.showHUD) return;
+    const frameNum = String(index + 1).padStart(3, '0');
+    const time     = (progress * CONFIG.duration).toFixed(2);
+    hudFrame.textContent = `FRAME ${frameNum} / ${CONFIG.totalFrames}`;
+    hudTime.textContent  = `${time}s`;
+  }
+
+  /* ─── Scroll handler ─── */
+  function onScroll() {
+    if (!ready) return;
+
+    const section    = document.getElementById('scroll-section');
+    const rect       = section.getBoundingClientRect();
+    const scrollable = section.offsetHeight - window.innerHeight;
+    const scrolled   = clamp(-rect.top, 0, scrollable);
+    const progress   = scrolled / scrollable;
+    const index      = Math.round(progress * (CONFIG.totalFrames - 1));
+
+    // Actualizar progress bar
+    progressBar.style.width = (progress * 100).toFixed(2) + '%';
+
+    // Scroll hint
+    if (scrolled > 20) {
+      scrollHint.classList.add('hidden');
+    } else {
+      scrollHint.classList.remove('hidden');
+    }
+
+    // Solo redibujar si cambia el frame
+    if (index === currentIndex) return;
+    currentIndex = index;
+
+    if (!rafPending) {
+      rafPending = true;
+      requestAnimationFrame(() => {
+        drawFrame(currentIndex);
+        updateHUD(currentIndex, progress);
+        rafPending = false;
+      });
+    }
+  }
+
+  /* ─── Init ─── */
+  async function init() {
+    // Configurar canvas resolution vs display size
+    canvas.width  = 1280;
+    canvas.height = 720;
+
+    // Fondo negro mientras carga
+    ctx.fillStyle = '#000';
+    ctx.fillRect(0, 0, 1280, 720);
+
+    // HUD
+    if (CONFIG.showHUD) hud.classList.add('visible');
+
+    // Cargar frames
+    await preload();
+
+    // Ocultar loader
+    loader.classList.add('hidden');
+    ready = true;
+
+    // Dibujar frame inicial
+    drawFrame(0);
+    updateHUD(0, 0);
+
+    // Escuchar scroll
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Forzar frame correcto si ya hay scroll
+    onScroll();
+  }
+
+  init();
+</script>
+</body>
+</html>
