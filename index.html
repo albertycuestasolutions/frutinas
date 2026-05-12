@@ -1,142 +1,1254 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Image Sequence Scrubbing — Demo</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frutinas — Cholados, ensaladas de frutas y antojos colombianos · Valencia, Madrid, Alicante</title>
+<meta name="description" content="Frutinas. Desde Colombia, gustos latinos. Cholados, ensaladas de frutas, luladas, obleas y más. Valencia · Madrid · Alicante. Todos los días 14:00–21:30.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  html, body { margin: 0; padding: 0; background: #0a0a0a; color: #eee; font-family: system-ui, sans-serif; }
-  /* La sección scrolleable: 400vh = 4 pantallas de scroll para recorrer el video */
-  .scroll-container { height: 400vh; position: relative; }
-  /* El canvas es sticky: queda fijo mientras scrolleas */
-  .sticky-stage {
-    position: sticky; top: 0;
-    height: 100vh; width: 100%;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden;
-  }
-  canvas {
-    /* Estilo en CSS pixels; el tamaño interno se ajusta por devicePixelRatio en JS */
-    width: 100%; height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  .hud {
-    position: fixed; bottom: 16px; left: 16px;
-    background: rgba(0,0,0,.6); padding: 8px 12px; border-radius: 6px;
-    font-size: 13px; font-variant-numeric: tabular-nums;
-  }
+:root{
+  /* paleta limpia, morado vibrante, acentos cálidos */
+  --paper:#faf6ef;          /* fondo crema muy suave, no blanco frío */
+  --paper-2:#f3ecdf;
+  --paper-3:#eadfca;
+  --ink:#1a0f1f;            /* "negro" tirando a berenjena */
+  --ink-soft:#3a2842;
+  --ink-dim:#6e5872;
+  --grape:#5b1d8a;          /* morado principal */
+  --grape-deep:#3a0f5e;     /* morado oscuro para profundidad */
+  --grape-soft:#a47cc7;     /* morado suave para fondos */
+  --mango:#ff8c2a;          /* acento naranja mango */
+  --lulo:#f4d03f;           /* acento amarillo lulo */
+  --mora:#7a1b6b;           /* mora */
+  --line:rgba(26,15,31,.12);
+
+  --display:'Instrument Serif', 'Times New Roman', serif;
+  --sans:'Bricolage Grotesque', system-ui, sans-serif;
+  --mono:'DM Mono', 'Courier New', monospace;
+  --maxw:1340px;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--sans);
+  font-weight:400;
+  font-size:16px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+/* grano de papel sobre todo el sitio */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1000;
+  opacity:.18;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='5'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.06  0 0 0 0 0.12  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* ===== NAV ===== */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px clamp(20px,4vw,52px);
+  background:rgba(250,246,239,.78);
+  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.nav__brand{
+  font-family:var(--display);
+  font-size:1.7rem;
+  font-style:italic;
+  letter-spacing:-.02em;
+  line-height:1;
+  color:var(--grape);
+  display:flex;align-items:baseline;gap:8px;
+}
+.nav__brand::after{
+  content:"●";
+  font-style:normal;
+  color:var(--mango);
+  font-size:.6em;
+  transform:translateY(-.2em);
+}
+.nav__links{display:none;gap:28px;font-size:.78rem;text-transform:uppercase;letter-spacing:.16em;color:var(--ink-soft);font-weight:500}
+.nav__links a{position:relative;padding:6px 0;transition:color .25s}
+.nav__links a:hover{color:var(--grape)}
+.nav__links a::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:var(--grape);transform:scaleX(0);transform-origin:left;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1);
+}
+.nav__links a:hover::after{transform:scaleX(1)}
+.nav__cta{
+  font-family:var(--sans);
+  font-size:.74rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.16em;
+  background:var(--grape);color:var(--paper);
+  padding:11px 20px;border-radius:999px;
+  transition:transform .25s, background .25s;
+}
+.nav__cta:hover{background:var(--ink);transform:translateY(-1px)}
+@media(min-width:900px){ .nav__links{display:flex} }
+
+/* progress bar */
+#progress-bar{
+  position:fixed;top:0;left:0;width:0%;height:3px;
+  background:var(--grape);z-index:60;pointer-events:none;
+  transition:width .04s linear;
+}
+
+/* ===== HERO (scroll scrubbing) ===== */
+.hero{ position:relative; height:420vh; }
+.hero__stage{
+  position:sticky;top:0;
+  height:100vh;width:100%;
+  overflow:hidden;
+  background:var(--paper);
+}
+/* fondo decorativo del stage */
+.hero__bg-blob{
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:min(85vh,82vw);
+  aspect-ratio:1;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, var(--grape-soft) 0%, var(--grape) 60%, var(--grape-deep) 100%);
+  z-index:0;
+  filter:blur(2px);
+}
+.hero__bg-text{
+  position:absolute;
+  font-family:var(--display);
+  font-style:italic;
+  font-size:clamp(14rem,32vw,28rem);
+  line-height:.78;
+  color:var(--grape-deep);
+  opacity:.06;
+  letter-spacing:-.06em;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  z-index:0;
+  user-select:none;
+  pointer-events:none;
+  white-space:nowrap;
+}
+#seq-canvas{
+  position:relative;
+  z-index:1;
+  display:block;
+  width:100%;
+  height:100%;
+  /* el canvas dibuja la imagen centrada; el resto queda transparente */
+  background:transparent;
+}
+
+/* overlay título */
+.hero__overlay{
+  position:absolute;inset:0;z-index:3;
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:clamp(110px,14vh,150px) clamp(24px,5vw,72px) clamp(40px,6vh,72px);
+  pointer-events:none;
+  transition:opacity .5s ease;
+}
+.hero__overlay.phase-fade{ opacity:0; }
+
+.hero__top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:24px;
+  pointer-events:auto;
+}
+.hero__eyebrow{
+  font-family:var(--mono);
+  font-size:.72rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--grape);
+  background:var(--paper);
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid var(--grape);
+  display:inline-flex;align-items:center;gap:10px;
+}
+.hero__eyebrow::before{
+  content:"";width:6px;height:6px;border-radius:50%;
+  background:var(--mango);
+  animation:pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.5;transform:scale(1.3)}
+}
+.hero__price-tag{
+  font-family:var(--display);
+  font-style:italic;
+  font-size:1rem;
+  color:var(--ink-soft);
+  text-align:right;
+  line-height:1.2;
+}
+.hero__price-tag strong{
+  display:block;
+  font-style:normal;
+  font-family:var(--mono);
+  font-size:.7rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+  margin-bottom:4px;
+  font-weight:500;
+}
+
+.hero__title-wrap{ pointer-events:auto; }
+.hero__title{
+  font-family:var(--display);
+  font-weight:400;
+  font-size:clamp(4.2rem,17vw,17rem);
+  line-height:.82;
+  letter-spacing:-.05em;
+  margin:0;
+  color:var(--ink);
+}
+.hero__title .italic{ font-style:italic; color:var(--grape); }
+.hero__title .small{
+  display:block;
+  font-size:.18em;
+  font-family:var(--mono);
+  font-style:normal;
+  font-weight:400;
+  letter-spacing:.3em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+  margin-bottom:.4em;
+}
+.hero__title-meta{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  margin-top:24px;
+  gap:24px;
+  flex-wrap:wrap;
+}
+.hero__lede{
+  font-family:var(--display);
+  font-style:italic;
+  font-size:clamp(1.1rem,1.6vw,1.4rem);
+  color:var(--ink-soft);
+  max-width:38ch;
+  line-height:1.35;
+  margin:0;
+}
+.hero__cta-row{
+  display:flex;gap:12px;flex-wrap:wrap;
+  pointer-events:auto;
+}
+.hero__btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:14px 24px;
+  font-family:var(--sans);
+  font-size:.78rem;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;
+  border-radius:999px;
+  transition:transform .25s, background .25s, color .25s;
+}
+.hero__btn--primary{ background:var(--grape); color:var(--paper); }
+.hero__btn--primary:hover{ background:var(--ink); transform:translateY(-2px) }
+.hero__btn--ghost{
+  background:var(--paper);
+  color:var(--ink);
+  border:1px solid var(--ink);
+}
+.hero__btn--ghost:hover{ background:var(--ink); color:var(--paper); transform:translateY(-2px) }
+.hero__btn::after{ content:"→"; letter-spacing:0; transition:transform .25s }
+.hero__btn:hover::after{ transform:translateX(4px) }
+
+/* Overlay del concepto (segunda fase, cuando el scrub avanza) */
+.hero__concept{
+  position:absolute;inset:0;z-index:3;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(110px,14vh,150px) clamp(24px,5vw,72px);
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .6s ease;
+}
+.hero__concept.phase-show{ opacity:1 }
+.hero__concept-eyebrow{
+  font-family:var(--mono);
+  font-size:.7rem;
+  letter-spacing:.32em;
+  text-transform:uppercase;
+  color:var(--mango);
+  display:inline-flex;align-items:center;gap:14px;
+  margin-bottom:1.2em;
+  background:var(--paper);
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid var(--mango);
+  align-self:flex-start;
+}
+.hero__concept-eyebrow::before{
+  content:"";width:24px;height:1px;background:var(--mango);
+}
+.hero__concept-title{
+  font-family:var(--display);
+  font-style:italic;
+  font-weight:400;
+  font-size:clamp(2.6rem,7vw,6rem);
+  line-height:.95;
+  letter-spacing:-.03em;
+  margin:0 0 .6em;
+  color:var(--ink);
+  max-width:14ch;
+}
+.hero__concept-title strong{
+  font-style:normal;
+  font-weight:400;
+  color:var(--grape);
+  background:var(--lulo);
+  padding:0 .15em;
+  border-radius:4px;
+}
+.hero__concept-ingredients{
+  display:flex;
+  gap:8px 14px;
+  flex-wrap:wrap;
+  max-width:600px;
+}
+.hero__concept-ingredients span{
+  font-family:var(--mono);
+  font-size:.78rem;
+  letter-spacing:.06em;
+  color:var(--ink-soft);
+  padding:6px 12px;
+  background:var(--paper-2);
+  border:1px solid var(--line);
+  border-radius:999px;
+}
+
+/* loader */
+#hero-loader{
+  position:absolute;inset:0;z-index:20;
+  background:var(--paper);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  transition:opacity .7s, visibility .7s;
+}
+#hero-loader.hidden{opacity:0;visibility:hidden}
+#hero-loader-label{
+  font-family:var(--mono);
+  font-size:.68rem;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--ink-dim);
+}
+#hero-loader-track{
+  width:180px;height:1px;background:var(--line);position:relative;overflow:hidden;
+}
+#hero-loader-fill{
+  position:absolute;left:0;top:0;height:100%;width:0%;
+  background:var(--grape);transition:width .08s linear;
+}
+
+/* scroll hint */
+.hero__scroll-hint{
+  position:absolute;bottom:24px;left:50%;
+  transform:translateX(-50%);z-index:4;
+  font-family:var(--mono);font-size:.66rem;
+  letter-spacing:.32em;text-transform:uppercase;
+  color:var(--ink-dim);
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  pointer-events:none;
+  transition:opacity .4s;
+}
+.hero__scroll-hint.hidden{opacity:0}
+.hero__scroll-hint::after{
+  content:"";width:1px;height:32px;
+  background:linear-gradient(to bottom, var(--ink-dim), transparent);
+  animation:scrollLine 1.8s ease-in-out infinite;
+}
+@keyframes scrollLine{
+  0%{transform:scaleY(0);transform-origin:top}
+  50%{transform:scaleY(1);transform-origin:top}
+  51%{transform:scaleY(1);transform-origin:bottom}
+  100%{transform:scaleY(0);transform-origin:bottom}
+}
+
+@media(max-width:767px){
+  .hero{height:340vh}
+  .hero__title-meta{flex-direction:column;align-items:flex-start}
+}
+
+/* ===== bloques comunes ===== */
+.section{
+  padding:clamp(80px,12vh,160px) clamp(20px,5vw,72px);
+  position:relative;
+}
+.container{max-width:var(--maxw);margin:0 auto;width:100%}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:.74rem;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--grape);
+  display:inline-flex;align-items:center;gap:14px;
+  font-weight:500;
+}
+.eyebrow::before{
+  content:"";width:24px;height:1px;background:var(--grape);
+}
+.h-display{
+  font-family:var(--display);
+  font-weight:400;
+  font-size:clamp(2.4rem,6.5vw,5.4rem);
+  line-height:.95;
+  letter-spacing:-.03em;
+  margin:.4em 0 0;
+}
+.h-display .italic{font-style:italic;color:var(--grape)}
+
+.reveal{
+  opacity:0;transform:translateY(30px);
+  transition:opacity 1s cubic-bezier(.2,.8,.2,1), transform 1s cubic-bezier(.2,.8,.2,1);
+}
+.reveal.is-visible{opacity:1;transform:none}
+.reveal--delay-1{transition-delay:.1s}
+.reveal--delay-2{transition-delay:.22s}
+.reveal--delay-3{transition-delay:.34s}
+
+/* ===== MARQUEE de frutas ===== */
+.marquee{
+  background:var(--grape);
+  color:var(--paper);
+  overflow:hidden;
+  padding:18px 0;
+  border-top:1px solid var(--ink);
+  border-bottom:1px solid var(--ink);
+}
+.marquee__track{
+  display:flex;gap:48px;
+  animation:marquee 38s linear infinite;
+  white-space:nowrap;
+}
+.marquee__item{
+  font-family:var(--display);
+  font-style:italic;
+  font-size:clamp(1.6rem,3vw,2.4rem);
+  letter-spacing:-.02em;
+  display:flex;align-items:center;gap:48px;
+}
+.marquee__item::after{
+  content:"●";font-style:normal;color:var(--mango);font-size:.5em;
+}
+@keyframes marquee{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+
+/* ===== MENÚ ===== */
+.menu{ background:var(--paper); }
+.menu__head{
+  display:grid;grid-template-columns:1fr;gap:30px;align-items:end;
+  margin-bottom:80px;
+}
+.menu__head p{
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(1.1rem,1.6vw,1.4rem);
+  color:var(--ink-soft);max-width:44ch;margin:0;line-height:1.4;
+}
+@media(min-width:900px){
+  .menu__head{grid-template-columns:1fr auto}
+}
+
+.dishes{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:0;
+  border-top:1px solid var(--ink);
+}
+.dish{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+  padding:32px 0;
+  border-bottom:1px solid var(--ink);
+  position:relative;
+  transition:padding .35s;
+}
+.dish:hover{padding-left:24px}
+.dish__head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.dish__name{
+  font-family:var(--display);
+  font-weight:400;
+  font-size:clamp(1.8rem,3.4vw,2.6rem);
+  line-height:1;
+  margin:0;
+  letter-spacing:-.02em;
+}
+.dish__name .italic{font-style:italic;color:var(--grape)}
+.dish__price{
+  font-family:var(--mono);
+  font-size:1.05rem;
+  color:var(--ink);
+  font-weight:500;
+  white-space:nowrap;
+}
+.dish__desc{
+  font-family:var(--sans);font-weight:400;
+  font-size:.95rem;
+  line-height:1.55;
+  color:var(--ink-soft);
+  margin:0;
+  max-width:62ch;
+}
+.dish__tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--mono);
+  font-size:.66rem;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--grape);
+  padding:4px 10px;
+  background:var(--paper-2);
+  border-radius:999px;
+  align-self:flex-start;
+}
+.dish__tag--mango{color:var(--mango);background:rgba(255,140,42,.08)}
+.dish__tag--lulo{color:#9a8a14;background:rgba(244,208,63,.18)}
+
+/* ===== CONCEPTO ===== */
+.concept{ background:var(--paper-2); border-top:1px solid var(--ink); border-bottom:1px solid var(--ink); }
+.concept__grid{
+  display:grid;grid-template-columns:1fr;gap:60px;align-items:start;
+}
+.concept__intro{position:relative}
+.concept__bg-word{
+  position:absolute;
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(14rem,26vw,22rem);
+  line-height:.8;letter-spacing:-.05em;
+  color:var(--paper-3);
+  top:-10%;right:-30%;
+  z-index:0;pointer-events:none;user-select:none;
+}
+.concept__intro > *{position:relative;z-index:1}
+.concept__copy{
+  display:grid;grid-template-columns:1fr;gap:24px;
+  font-family:var(--display);font-weight:400;font-style:italic;
+  font-size:clamp(1.15rem,1.5vw,1.4rem);
+  line-height:1.5;color:var(--ink);max-width:62ch;
+}
+.concept__copy p:first-child::first-letter{
+  font-family:var(--display);font-style:italic;
+  font-size:3.6em;float:left;line-height:.85;
+  margin:.04em .1em -.02em 0;
+  color:var(--grape);
+}
+.concept__copy strong{
+  font-style:normal;
+  background:var(--lulo);
+  padding:0 .15em;
+  border-radius:3px;
+  color:var(--ink);
+}
+.concept__meta{
+  display:grid;grid-template-columns:1fr 1fr;gap:24px 40px;
+  margin-top:50px;padding-top:40px;border-top:1px solid var(--ink);
+}
+.concept__meta dt{
+  font-family:var(--mono);
+  font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--ink-dim);margin-bottom:8px;
+}
+.concept__meta dd{
+  margin:0 0 22px;
+  font-family:var(--display);font-style:italic;
+  font-size:1.2rem;line-height:1.3;
+}
+@media(min-width:900px){
+  .concept__grid{grid-template-columns:.65fr 1fr;gap:100px}
+  .concept__intro{position:sticky;top:120px}
+}
+
+/* ===== UBICACIONES ===== */
+.locations{ background:var(--paper); }
+.locations__grid{
+  display:grid;grid-template-columns:1fr;gap:24px;
+  margin-top:60px;
+}
+.location{
+  background:var(--paper-2);
+  border:1px solid var(--ink);
+  padding:36px 28px;
+  border-radius:4px;
+  position:relative;
+  overflow:hidden;
+  transition:background .3s, transform .35s cubic-bezier(.2,.8,.2,1);
+}
+.location:hover{
+  background:var(--grape);
+  color:var(--paper);
+  transform:translateY(-4px);
+}
+.location:hover .location__address,
+.location:hover .location__hours,
+.location:hover .location__city-meta{ color:var(--paper) }
+.location:hover .location__city{ color:var(--lulo) }
+.location:hover .location__num{ color:var(--paper) }
+.location__num{
+  font-family:var(--mono);
+  font-size:.74rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ink-dim);
+  margin-bottom:24px;
+  transition:color .3s;
+}
+.location__city{
+  font-family:var(--display);
+  font-style:italic;
+  font-size:clamp(2rem,3.5vw,2.6rem);
+  line-height:1;
+  color:var(--grape);
+  margin:0 0 4px;
+  transition:color .3s;
+}
+.location__city-meta{
+  font-family:var(--mono);
+  font-size:.7rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+  margin-bottom:24px;
+  transition:color .3s;
+}
+.location__address{
+  font-family:var(--sans);
+  font-size:1rem;
+  font-weight:500;
+  color:var(--ink);
+  margin:0 0 16px;
+  line-height:1.4;
+  transition:color .3s;
+}
+.location__hours{
+  font-family:var(--mono);
+  font-size:.78rem;
+  color:var(--ink-soft);
+  transition:color .3s;
+}
+@media(min-width:900px){
+  .locations__grid{grid-template-columns:repeat(3,1fr);gap:20px}
+}
+
+/* ===== RESERVA CTA ===== */
+.book{
+  background:var(--grape);
+  color:var(--paper);
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+.book__bg-word{
+  position:absolute;
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(20rem,40vw,32rem);
+  line-height:.8;letter-spacing:-.05em;
+  color:var(--grape-deep);
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  z-index:0;pointer-events:none;user-select:none;
+  opacity:.5;
+}
+.book__inner{ position:relative; z-index:1; max-width:780px; margin:0 auto; }
+.book__eyebrow{
+  font-family:var(--mono);
+  font-size:.74rem;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--lulo);
+  display:inline-flex;align-items:center;gap:14px;
+}
+.book__eyebrow::before{
+  content:"";width:24px;height:1px;background:var(--lulo);
+}
+.book__title{
+  font-family:var(--display);font-weight:400;
+  font-size:clamp(2.8rem,7vw,5.6rem);
+  line-height:.95;letter-spacing:-.03em;
+  margin:.3em 0 .4em;
+}
+.book__title .italic{font-style:italic;color:var(--lulo)}
+.book__lede{
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(1.1rem,1.6vw,1.35rem);
+  color:rgba(250,246,239,.85);
+  margin:0 auto 2.4em;
+  max-width:50ch;
+  line-height:1.4;
+}
+.book__buttons{
+  display:flex;gap:14px;justify-content:center;flex-wrap:wrap;
+}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 28px;
+  font-family:var(--sans);
+  font-size:.78rem;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;
+  border-radius:999px;
+  transition:transform .25s, background .25s, color .25s;
+}
+.btn--primary{background:var(--lulo);color:var(--ink)}
+.btn--primary:hover{background:var(--paper);transform:translateY(-2px)}
+.btn--ghost{
+  background:transparent;color:var(--paper);
+  border:1px solid var(--paper);
+}
+.btn--ghost:hover{background:var(--paper);color:var(--grape);transform:translateY(-2px)}
+.btn::after{content:"→";letter-spacing:0;transition:transform .25s}
+.btn:hover::after{transform:translateX(4px)}
+
+/* ===== FOOTER ===== */
+.footer{
+  background:var(--ink);
+  color:var(--paper);
+  padding:60px clamp(20px,5vw,72px) 36px;
+}
+.footer__inner{
+  display:flex;flex-direction:column;gap:24px;
+  max-width:var(--maxw);margin:0 auto;
+}
+.footer__top{
+  display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:24px;
+  padding-bottom:30px;
+  border-bottom:1px solid rgba(250,246,239,.15);
+}
+.footer__brand{
+  font-family:var(--display);
+  font-style:italic;
+  font-size:clamp(3rem,6vw,5rem);
+  line-height:1;color:var(--paper);
+  letter-spacing:-.02em;
+}
+.footer__brand::after{
+  content:"●";font-style:normal;color:var(--mango);font-size:.4em;
+  vertical-align:.6em;margin-left:.1em;
+}
+.footer__links{
+  display:flex;gap:18px;flex-wrap:wrap;
+  font-family:var(--mono);
+  font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;
+}
+.footer__links a{
+  color:rgba(250,246,239,.7);transition:color .25s;
+}
+.footer__links a:hover{color:var(--lulo)}
+.footer__bottom{
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;
+  font-family:var(--mono);font-size:.7rem;
+  color:rgba(250,246,239,.5);letter-spacing:.16em;text-transform:uppercase;
+}
+
 </style>
 </head>
 <body>
 
-<div class="scroll-container">
-  <div class="sticky-stage">
-    <canvas id="seq"></canvas>
+<!-- ===== NAV ===== -->
+<nav class="nav" id="nav">
+  <a class="nav__brand" href="#">Frutinas</a>
+  <div class="nav__links">
+    <a href="#menu">Menú</a>
+    <a href="#concepto">Concepto</a>
+    <a href="#locales">Locales</a>
+    <a href="#contacto">Contacto</a>
+  </div>
+  <a class="nav__cta" href="https://wa.me/34613226539">Pedir ya</a>
+</nav>
+
+<div id="progress-bar"></div>
+
+<!-- ===== HERO con scroll scrubbing ===== -->
+<section class="hero" id="hero">
+  <div class="hero__stage">
+    <!-- fondos decorativos detrás del canvas -->
+    <span class="hero__bg-text" aria-hidden="true">cholado</span>
+    <div class="hero__bg-blob" aria-hidden="true"></div>
+
+    <!-- canvas del scrubbing -->
+    <canvas id="seq-canvas" width="1280" height="720"></canvas>
+
+    <!-- overlay título (fase 1) -->
+    <div class="hero__overlay" id="heroOverlay">
+      <div class="hero__top">
+        <span class="hero__eyebrow">Abrimos hoy · 14:00 — 21:30</span>
+        <div class="hero__price-tag">
+          <strong>Desde</strong>
+          8,50 €
+        </div>
+      </div>
+
+      <div class="hero__title-wrap">
+        <h1 class="hero__title">
+          <span class="small">Desde Colombia, gustos latinos</span>
+          Cho<span class="italic">la</span>do
+        </h1>
+        <div class="hero__title-meta">
+          <p class="hero__lede">Hielo raspado, crema de la casa y toda la fruta del trópico. <em>Como en Jamundí.</em></p>
+          <div class="hero__cta-row">
+            <a class="hero__btn hero__btn--primary" href="#menu">Ver menú</a>
+            <a class="hero__btn hero__btn--ghost" href="#locales">Encontrar local</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- overlay concepto (fase 2) -->
+    <div class="hero__concept" id="heroConcept">
+      <span class="hero__concept-eyebrow">Qué lleva dentro</span>
+      <h2 class="hero__concept-title">
+        Hielo raspado, <strong>crema de la casa</strong> y toda la fruta del trópico.
+      </h2>
+      <div class="hero__concept-ingredients">
+        <span>maracuyá</span>
+        <span>mango</span>
+        <span>piña</span>
+        <span>guanábana</span>
+        <span>banano</span>
+        <span>leche condensada</span>
+        <span>milo</span>
+        <span>esencia de fresa</span>
+      </div>
+    </div>
+
+    <!-- loader -->
+    <div id="hero-loader">
+      <div id="hero-loader-label">Cargando el cholado</div>
+      <div id="hero-loader-track"><div id="hero-loader-fill"></div></div>
+    </div>
+
+    <!-- scroll hint -->
+    <div class="hero__scroll-hint" id="heroScrollHint">scroll</div>
+  </div>
+</section>
+
+<!-- ===== MARQUEE ===== -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    <span class="marquee__item">Maracuyá</span>
+    <span class="marquee__item">Lulo</span>
+    <span class="marquee__item">Guanábana</span>
+    <span class="marquee__item">Chontaduro</span>
+    <span class="marquee__item">Mora</span>
+    <span class="marquee__item">Mango biche</span>
+    <span class="marquee__item">Coco</span>
+    <span class="marquee__item">Papaya</span>
+    <!-- duplicado para loop infinito -->
+    <span class="marquee__item">Maracuyá</span>
+    <span class="marquee__item">Lulo</span>
+    <span class="marquee__item">Guanábana</span>
+    <span class="marquee__item">Chontaduro</span>
+    <span class="marquee__item">Mora</span>
+    <span class="marquee__item">Mango biche</span>
+    <span class="marquee__item">Coco</span>
+    <span class="marquee__item">Papaya</span>
   </div>
 </div>
 
-<div class="hud">Frame: <span id="hud-frame">0</span> / <span id="hud-total">0</span></div>
+<!-- ===== MENÚ ===== -->
+<section class="section menu" id="menu">
+  <div class="container">
+    <div class="menu__head">
+      <div>
+        <span class="eyebrow reveal">La carta</span>
+        <h2 class="h-display reveal reveal--delay-1">
+          Lo de <span class="italic">siempre</span>,<br>
+          como en casa.
+        </h2>
+      </div>
+      <p class="reveal reveal--delay-2">Recetas tradicionales del Valle del Cauca, hechas con fruta fresca cada mañana. Precios reales del local.</p>
+    </div>
+
+    <div class="dishes">
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Fruti <span class="italic">Cholado</span> grande</h3>
+          <span class="dish__price">9,50 €</span>
+        </div>
+        <p class="dish__desc">Hielo triturado con esencia de fresa y crema de la casa. Maracuyá, mango, piña, guanábana, banano, leche condensada y milo. El clásico.</p>
+        <span class="dish__tag">★ El más pedido</span>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Ensalada de frutas <span class="italic">Super</span></h3>
+          <span class="dish__price">13,00 €</span>
+        </div>
+        <p class="dish__desc">Crema de la casa con 7 frutas a elegir, queso fresco, barquillos, mermelada de mora y arequipe. Para compartir o llevárselo todo.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Fruti <span class="italic">Lulada</span></h3>
+          <span class="dish__price">11,50 €</span>
+        </div>
+        <p class="dish__desc">Trozos de lulo, limón, hielo triturado y mucha leche condensada. El toque de casa que la diferencia.</p>
+        <span class="dish__tag dish__tag--lulo">Cítrico</span>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name"><span class="italic">Guanabanazo</span></h3>
+          <span class="dish__price">11,50 €</span>
+        </div>
+        <p class="dish__desc">Sorvete cremoso de guanábana, mota generosa, leche condensada y milo. Para los amantes del sabor profundo.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name"><span class="italic">Chontaduro</span></h3>
+          <span class="dish__price">6,50 €</span>
+        </div>
+        <p class="dish__desc">Trozos de chontaduro con sal, limón y miel. Fruto afrodisíaco del Pacífico colombiano. Sin atajos.</p>
+        <span class="dish__tag dish__tag--mango">Tradicional</span>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name"><span class="italic">Maracuyazo</span></h3>
+          <span class="dish__price">8,00 €</span>
+        </div>
+        <p class="dish__desc">Hielo triturado con esencia de maracuyá, mucha maracuyá y leche condensada. Ácido y dulce a la vez.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Mango <span class="italic">biche</span></h3>
+          <span class="dish__price">8,50 €</span>
+        </div>
+        <p class="dish__desc">Trozos de mango verde con sal, limón, tajín, pimienta y leche condensada. Picante y refrescante.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Súper <span class="italic">Oblea</span></h3>
+          <span class="dish__price">9,00 €</span>
+        </div>
+        <p class="dish__desc">Galleta crujiente con mermelada de mora, arequipe, crema de la casa, leche condensada y 3 frutas a elegir.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name"><span class="italic">Solterita</span></h3>
+          <span class="dish__price">7,00 €</span>
+        </div>
+        <p class="dish__desc">Galleta crocante con la típica crema de solterita, leche condensada y mermelada de mora. Para los que no quieren mucho lío.</p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONCEPTO ===== -->
+<section class="section concept" id="concepto">
+  <div class="container">
+    <div class="concept__grid">
+      <div class="concept__intro">
+        <span class="concept__bg-word" aria-hidden="true">Cali</span>
+        <span class="eyebrow reveal">El concepto</span>
+        <h2 class="h-display reveal reveal--delay-1">
+          Un pedazo de <span class="italic">Cali</span>,<br>
+          a tres calles<br>
+          de casa.
+        </h2>
+      </div>
+
+      <div class="concept__copy">
+        <p class="reveal">Frutinas nació para resolver una nostalgia: la del cholado en la esquina, el chontaduro al peso, la oblea con todo lo que cabe. Trajimos las recetas del <strong>Valle del Cauca</strong> y las hacemos cada día con fruta de mercado y crema preparada en casa.</p>
+
+        <p class="reveal reveal--delay-1">Sin atajos ni "fusiones". Si una receta lleva milo, lleva milo. Si lleva chontaduro del Pacífico, lo traemos. Lo demás es servirlo rápido, frío y con una sonrisa.</p>
+
+        <p class="reveal reveal--delay-2">Hoy somos tres locales en Valencia, uno en Madrid y uno en Alicante. Cada uno, el mismo cholado de Jamundí.</p>
+
+        <dl class="concept__meta reveal reveal--delay-3">
+          <div>
+            <dt>Origen</dt>
+            <dd>Valle del Cauca, Colombia</dd>
+          </div>
+          <div>
+            <dt>Fruta</dt>
+            <dd>Fresca, cada mañana</dd>
+          </div>
+          <div>
+            <dt>Atajos</dt>
+            <dd>Ninguno</dd>
+          </div>
+          <div>
+            <dt>Comunidad</dt>
+            <dd>42k en Instagram</dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== UBICACIONES ===== -->
+<section class="section locations" id="locales">
+  <div class="container">
+    <div class="menu__head">
+      <div>
+        <span class="eyebrow reveal">Dónde encontrarnos</span>
+        <h2 class="h-display reveal reveal--delay-1">
+          Tres locales,<br>
+          el <span class="italic">mismo</span> cholado.
+        </h2>
+      </div>
+      <p class="reveal reveal--delay-2" style="font-family:var(--display);font-style:italic;font-size:1.3rem;color:var(--ink-soft);max-width:42ch;margin:0;line-height:1.4;">Todos abren a diario de 14:00 a 21:30. También en Madrid y Alicante.</p>
+    </div>
+
+    <div class="locations__grid">
+
+      <article class="location reveal">
+        <div class="location__num">N.º 01 · Valencia</div>
+        <h3 class="location__city">Cirilo Amorós</h3>
+        <div class="location__city-meta">L'Eixample</div>
+        <p class="location__address">Carrer de Ciril Amorós, 1<br>46004 València</p>
+        <div class="location__hours">Todos los días · 14:00 — 21:30</div>
+      </article>
+
+      <article class="location reveal reveal--delay-1">
+        <div class="location__num">N.º 02 · Valencia</div>
+        <h3 class="location__city">Cuenca</h3>
+        <div class="location__city-meta">Extramurs</div>
+        <p class="location__address">Carrer de Cuenca, 36<br>46007 València</p>
+        <div class="location__hours">Todos los días · 14:00 — 21:30</div>
+      </article>
+
+      <article class="location reveal reveal--delay-2">
+        <div class="location__num">N.º 03 · Valencia</div>
+        <h3 class="location__city">Centro</h3>
+        <div class="location__city-meta">Periodista Azzati</div>
+        <p class="location__address">Carrer del Periodista Azzati, 4<br>46002 València</p>
+        <div class="location__hours">Todos los días · 14:00 — 21:30</div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== RESERVA / CTA ===== -->
+<section class="section book" id="contacto">
+  <span class="book__bg-word" aria-hidden="true">¡pide!</span>
+  <div class="book__inner">
+    <span class="book__eyebrow reveal">A domicilio</span>
+    <h2 class="book__title reveal reveal--delay-1">
+      Pide por <span class="italic">WhatsApp</span><br>
+      y lo tienes en casa.
+    </h2>
+    <p class="book__lede reveal reveal--delay-2">También en Just Eat, Glovo y Uber Eats. Pero si llamas, te atendemos directo y va más rápido.</p>
+
+    <div class="book__buttons reveal reveal--delay-3">
+      <a class="btn btn--primary" href="https://wa.me/34613226539">WhatsApp · 613 22 65 39</a>
+      <a class="btn btn--ghost" href="https://www.instagram.com/frutinass" target="_blank" rel="noopener">@frutinass</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__top">
+      <div class="footer__brand">Frutinas</div>
+      <div class="footer__links">
+        <a href="https://instagram.com/frutinass" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://tiktok.com/@frutinas" target="_blank" rel="noopener">TikTok</a>
+        <a href="https://wa.me/34613226539">WhatsApp</a>
+        <a href="#menu">Menú</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div>© 2026 Frutinas · Desde Colombia, gustos latinos</div>
+      <div>Valencia · Madrid · Alicante</div>
+    </div>
+  </div>
+</footer>
 
 <script>
-/* ============================================================
-   IMAGE SEQUENCE SCRUBBING — versión nítida en pantallas retina
-   ============================================================ */
+(function(){
+  'use strict';
 
-const TOTAL_FRAMES = 192;
-const FRAME_PATH = (i) => `frames/frame_${String(i).padStart(4, '0')}.webp`;
+  /* ══════════════════════════════════════════
+     CONFIG — adapta a tus frames
+  ══════════════════════════════════════════ */
+  var CFG = {
+    totalFrames : 192,
+    frameDir    : './frames/',
+    framePrefix : 'frame_',
+    framePad    : 4,
+    frameExt    : 'webp'
+  };
 
-const canvas = document.getElementById('seq');
-const ctx = canvas.getContext('2d');
-const hudFrame = document.getElementById('hud-frame');
-const hudTotal = document.getElementById('hud-total');
-hudTotal.textContent = TOTAL_FRAMES;
+  /* ══════════════════════════════════════════
+     REFS
+  ══════════════════════════════════════════ */
+  var hero       = document.querySelector('.hero');
+  var canvas     = document.getElementById('seq-canvas');
+  var ctx        = canvas.getContext('2d', {alpha:true});
+  var loader     = document.getElementById('hero-loader');
+  var loaderFill = document.getElementById('hero-loader-fill');
+  var progressBar= document.getElementById('progress-bar');
+  var overlay    = document.getElementById('heroOverlay');
+  var concept    = document.getElementById('heroConcept');
+  var scrollHint = document.getElementById('heroScrollHint');
 
-// CLAVE #1: ajustar el canvas a devicePixelRatio para que se vea nítido en retina
-function resizeCanvas() {
-  const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width  = Math.round(rect.width  * dpr);
-  canvas.height = Math.round(rect.height * dpr);
-  // Re-render del frame actual al redimensionar
-  drawFrame(currentFrame);
-}
+  function pad(n){ return String(n).padStart(CFG.framePad,'0'); }
+  function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
 
-// CLAVE #2: precargar TODAS las imágenes en memoria antes de scrollear.
-// Si no, el scroll va a ir "saltando" mientras descarga.
-const images = new Array(TOTAL_FRAMES);
-let loaded = 0;
-let currentFrame = 0;
+  /* ══════════════════════════════════════════
+     CANVAS RESPONSIVE + DPR
+  ══════════════════════════════════════════ */
+  function resizeCanvas(){
+    var dpr = window.devicePixelRatio || 1;
+    var rect = canvas.getBoundingClientRect();
+    canvas.width  = Math.round(rect.width  * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+  }
 
-function preload() {
-  return new Promise((resolve) => {
-    for (let i = 0; i < TOTAL_FRAMES; i++) {
-      const img = new Image();
-      img.onload = () => {
-        loaded++;
-        if (loaded === TOTAL_FRAMES) resolve();
-      };
-      img.onerror = () => {
-        loaded++;
-        if (loaded === TOTAL_FRAMES) resolve();
-      };
-      img.src = FRAME_PATH(i + 1); // tus frames empiezan en 0001
-      images[i] = img;
+  /* ══════════════════════════════════════════
+     PRECARGA
+  ══════════════════════════════════════════ */
+  var images     = new Array(CFG.totalFrames);
+  var loaded     = 0;
+  var appReady   = false;
+  var rafPending = false;
+  var currentIdx = -1;
+
+  function preload(){
+    for(var i=0;i<CFG.totalFrames;i++){
+      (function(idx){
+        var img = new Image();
+        img.onload = img.onerror = function(){
+          loaded++;
+          loaderFill.style.width = (loaded/CFG.totalFrames*100).toFixed(1)+'%';
+          if(loaded === CFG.totalFrames) onAllLoaded();
+        };
+        img.src = CFG.frameDir + CFG.framePrefix + pad(idx+1) + '.' + CFG.frameExt;
+        images[idx] = img;
+      })(i);
     }
-  });
-}
+  }
 
-// CLAVE #3: dibujar con "cover" manual, manteniendo aspect ratio
-function drawFrame(idx) {
-  const img = images[idx];
-  if (!img || !img.complete || img.naturalWidth === 0) return;
+  function onAllLoaded(){
+    appReady = true;
+    loader.classList.add('hidden');
+    drawFrame(0);
+    onScroll();
+  }
 
-  const cw = canvas.width;
-  const ch = canvas.height;
-  const iw = img.naturalWidth;
-  const ih = img.naturalHeight;
+  /* ══════════════════════════════════════════
+     RENDER — el cholado se muestra como
+     un "objeto" centrado, NO como background full.
+     Esto da espacio a los overlays a su alrededor.
+  ══════════════════════════════════════════ */
+  function drawFrame(idx){
+    var img = images[idx];
+    if(!img || !img.complete || !img.naturalWidth) return;
+    var cw = canvas.width, ch = canvas.height;
+    var iw = img.naturalWidth, ih = img.naturalHeight;
 
-  // Cover: llenar el canvas recortando lo que sobre
-  const scale = Math.max(cw / iw, ch / ih);
-  const dw = iw * scale;
-  const dh = ih * scale;
-  const dx = (cw - dw) / 2;
-  const dy = (ch - dh) / 2;
+    // contain (cabe completo dentro del stage, centrado, ~70% del alto)
+    var s = Math.min(cw/iw, ch/ih) * 0.85;
+    var dw = iw*s, dh = ih*s;
+    var dx = (cw-dw)/2, dy = (ch-dh)/2;
 
-  ctx.clearRect(0, 0, cw, ch);
-  ctx.drawImage(img, dx, dy, dw, dh);
-  hudFrame.textContent = idx + 1;
-}
+    ctx.clearRect(0,0,cw,ch);
+    ctx.drawImage(img, dx, dy, dw, dh);
+  }
 
-// CLAVE #4: ligar scroll → frame con requestAnimationFrame (suave, no laggy)
-let ticking = false;
-function onScroll() {
-  if (ticking) return;
-  ticking = true;
-  requestAnimationFrame(() => {
-    const container = document.querySelector('.scroll-container');
-    const rect = container.getBoundingClientRect();
-    const total = rect.height - window.innerHeight;
-    const progress = Math.min(1, Math.max(0, -rect.top / total));
-    const idx = Math.min(TOTAL_FRAMES - 1, Math.floor(progress * TOTAL_FRAMES));
-    if (idx !== currentFrame) {
-      currentFrame = idx;
-      drawFrame(idx);
+  /* ══════════════════════════════════════════
+     SCROLL — fases del hero
+     0.00 → 0.22 : título visible
+     0.22 → 0.40 : fade out título → fade in concepto
+     0.40 → 1.00 : concepto visible mientras avanzan frames
+  ══════════════════════════════════════════ */
+  function onScroll(){
+    if(!appReady) return;
+    var rect       = hero.getBoundingClientRect();
+    var scrollable = hero.offsetHeight - window.innerHeight;
+    var scrolled   = clamp(-rect.top, 0, scrollable);
+    var progress   = scrollable > 0 ? scrolled/scrollable : 0;
+
+    progressBar.style.width = (progress*100).toFixed(2)+'%';
+
+    if(scrolled > 50) scrollHint.classList.add('hidden');
+    else scrollHint.classList.remove('hidden');
+
+    if(progress > 0.22) overlay.classList.add('phase-fade');
+    else overlay.classList.remove('phase-fade');
+
+    if(progress > 0.32 && progress < 0.95) concept.classList.add('phase-show');
+    else concept.classList.remove('phase-show');
+
+    var idx = Math.round(progress * (CFG.totalFrames-1));
+    if(idx === currentIdx) return;
+    currentIdx = idx;
+
+    if(!rafPending){
+      rafPending = true;
+      requestAnimationFrame(function(){
+        drawFrame(currentIdx);
+        rafPending = false;
+      });
     }
-    ticking = false;
+  }
+
+  window.addEventListener('scroll', onScroll, {passive:true});
+  window.addEventListener('resize', function(){ resizeCanvas(); drawFrame(Math.max(0,currentIdx)); onScroll(); });
+
+  /* ══════════════════════════════════════════
+     REVEAL ON SCROLL
+  ══════════════════════════════════════════ */
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          e.target.classList.add('is-visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, {threshold:.12, rootMargin:'0px 0px -50px 0px'});
+    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('is-visible'); });
+  }
+
+  /* ══════════════════════════════════════════
+     SMOOTH SCROLL
+  ══════════════════════════════════════════ */
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var href = a.getAttribute('href');
+      if(href.length > 1){
+        var t = document.querySelector(href);
+        if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'}); }
+      }
+    });
   });
-}
 
-// Init
-window.addEventListener('resize', resizeCanvas);
-window.addEventListener('scroll', onScroll, { passive: true });
-
-(async () => {
+  /* ══════════════════════════════════════════
+     ARRANCAR
+  ══════════════════════════════════════════ */
   resizeCanvas();
-  await preload();
-  drawFrame(0);
+  preload();
 })();
 </script>
-
 </body>
 </html>
