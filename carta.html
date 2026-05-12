@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carta · Frutinas — Cholados, ensaladas, obleas, merengones</title>
+<meta name="description" content="Carta completa de Frutinas. Cholados, luladas, guanabanazos, chontaduros, obleas, merengones y más. Precios actualizados, todos los locales.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#faf6ef; --paper-2:#f3ecdf; --paper-3:#eadfca;
+  --ink:#1a0f1f; --ink-soft:#3a2842; --ink-dim:#6e5872;
+  --grape:#5b1d8a; --grape-deep:#3a0f5e; --grape-soft:#a47cc7;
+  --mango:#ff8c2a; --lulo:#f4d03f; --mora:#7a1b6b;
+  --line:rgba(26,15,31,.12);
+  --display:'Instrument Serif','Times New Roman',serif;
+  --sans:'Bricolage Grotesque',system-ui,sans-serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --maxw:1180px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-weight:400;font-size:16px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1000;
+  opacity:.18;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='5'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.06  0 0 0 0 0.12  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* ===== NAV (idéntica al home) ===== */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px clamp(20px,4vw,52px);
+  background:rgba(250,246,239,.78);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.nav__brand{
+  font-family:var(--display);font-size:1.7rem;font-style:italic;
+  letter-spacing:-.02em;line-height:1;color:var(--grape);
+  display:flex;align-items:baseline;gap:8px;
+}
+.nav__brand::after{content:"●";font-style:normal;color:var(--mango);font-size:.6em;transform:translateY(-.2em)}
+.nav__links{display:none;gap:28px;font-size:.78rem;text-transform:uppercase;letter-spacing:.16em;color:var(--ink-soft);font-weight:500}
+.nav__links a{position:relative;padding:6px 0;transition:color .25s}
+.nav__links a:hover,.nav__links a[aria-current]{color:var(--grape)}
+.nav__links a[aria-current]::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--grape);
+}
+.nav__cta{
+  font-family:var(--sans);font-size:.74rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.16em;
+  background:var(--grape);color:var(--paper);
+  padding:11px 20px;border-radius:999px;
+  transition:transform .25s,background .25s;
+}
+.nav__cta:hover{background:var(--ink);transform:translateY(-1px)}
+@media(min-width:900px){.nav__links{display:flex}}
+
+/* ===== HEADER de página ===== */
+.page-header{
+  padding:clamp(120px,16vh,180px) clamp(20px,5vw,72px) clamp(40px,6vh,80px);
+  border-bottom:1px solid var(--ink);
+  position:relative;
+}
+.page-header__container{max-width:var(--maxw);margin:0 auto}
+.page-header__eyebrow{
+  font-family:var(--mono);
+  font-size:.74rem;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--grape);
+  display:inline-flex;align-items:center;gap:14px;font-weight:500;
+}
+.page-header__eyebrow::before{content:"";width:24px;height:1px;background:var(--grape)}
+.page-header__title{
+  font-family:var(--display);font-weight:400;
+  font-size:clamp(3rem,8vw,7rem);
+  line-height:.95;letter-spacing:-.04em;
+  margin:.3em 0 .3em;
+}
+.page-header__title .italic{font-style:italic;color:var(--grape)}
+.page-header__lede{
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(1.15rem,1.6vw,1.45rem);
+  color:var(--ink-soft);
+  max-width:52ch;line-height:1.4;margin:0;
+}
+
+/* ===== TOC de categorías ===== */
+.toc{
+  position:sticky;top:65px;z-index:30;
+  background:rgba(250,246,239,.92);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:14px clamp(20px,5vw,72px);
+}
+.toc__inner{
+  max-width:var(--maxw);margin:0 auto;
+  display:flex;gap:6px;overflow-x:auto;
+  scrollbar-width:none;
+}
+.toc__inner::-webkit-scrollbar{display:none}
+.toc a{
+  font-family:var(--mono);
+  font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--ink-dim);font-weight:500;
+  padding:8px 14px;border-radius:999px;
+  white-space:nowrap;
+  transition:color .25s,background .25s;
+}
+.toc a:hover{color:var(--grape);background:var(--paper-2)}
+
+/* ===== CATEGORÍA ===== */
+.cat{
+  padding:clamp(60px,8vh,100px) clamp(20px,5vw,72px);
+  border-bottom:1px solid var(--ink);
+  position:relative;
+}
+.cat__container{max-width:var(--maxw);margin:0 auto}
+.cat__head{
+  display:grid;grid-template-columns:1fr;gap:14px;
+  margin-bottom:48px;
+  align-items:end;
+}
+.cat__num{
+  font-family:var(--mono);
+  font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;
+  color:var(--ink-dim);
+}
+.cat__title{
+  font-family:var(--display);font-weight:400;
+  font-size:clamp(2.4rem,5.5vw,4.4rem);
+  line-height:1;letter-spacing:-.03em;
+  margin:0;
+}
+.cat__title .italic{font-style:italic;color:var(--grape)}
+.cat__desc{
+  font-family:var(--display);font-style:italic;
+  font-size:1.15rem;color:var(--ink-soft);
+  max-width:48ch;margin:0;line-height:1.4;
+}
+@media(min-width:900px){
+  .cat__head{grid-template-columns:1fr 1fr;gap:60px}
+}
+
+/* ===== Lista de platos ===== */
+.dishes{
+  display:grid;grid-template-columns:1fr;
+  border-top:1px solid var(--ink);
+}
+.dish{
+  display:grid;grid-template-columns:1fr;gap:10px;
+  padding:28px 0;
+  border-bottom:1px solid var(--line);
+  position:relative;
+  transition:padding .35s;
+}
+.dish:hover{padding-left:18px}
+.dish__head{
+  display:flex;align-items:baseline;justify-content:space-between;
+  gap:16px;flex-wrap:wrap;
+}
+.dish__name{
+  font-family:var(--display);font-weight:400;
+  font-size:clamp(1.6rem,3vw,2.3rem);
+  line-height:1;margin:0;letter-spacing:-.02em;
+}
+.dish__name .italic{font-style:italic;color:var(--grape)}
+.dish__price{
+  font-family:var(--mono);font-size:1rem;
+  color:var(--ink);font-weight:500;white-space:nowrap;
+}
+.dish__desc{
+  font-family:var(--sans);font-weight:400;
+  font-size:.95rem;line-height:1.55;
+  color:var(--ink-soft);margin:0;max-width:62ch;
+}
+.dish__tag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-family:var(--mono);
+  font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--grape);padding:4px 10px;
+  background:var(--paper-2);border-radius:999px;
+  align-self:flex-start;
+}
+.dish__tag--mango{color:var(--mango);background:rgba(255,140,42,.08)}
+.dish__tag--lulo{color:#9a8a14;background:rgba(244,208,63,.18)}
+.dish__tag--star{background:var(--lulo);color:var(--ink);border:1px solid var(--ink)}
+
+/* ===== Tabla de tamaños (cholados, etc) ===== */
+.dish__sizes{
+  display:flex;gap:18px;flex-wrap:wrap;
+  margin-top:6px;
+  font-family:var(--mono);font-size:.78rem;
+  color:var(--ink-soft);
+}
+.dish__sizes span{
+  display:inline-flex;align-items:center;gap:8px;
+}
+.dish__sizes span strong{
+  color:var(--grape);font-weight:500;
+  font-variant-numeric:tabular-nums;
+}
+
+/* ===== Footer CTA al final de la carta ===== */
+.bottom-cta{
+  padding:clamp(70px,9vh,110px) clamp(20px,5vw,72px);
+  text-align:center;
+  background:var(--grape);
+  color:var(--paper);
+  position:relative;overflow:hidden;
+}
+.bottom-cta__bg{
+  position:absolute;
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(16rem,32vw,26rem);
+  line-height:.8;letter-spacing:-.05em;
+  color:var(--grape-deep);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  z-index:0;pointer-events:none;user-select:none;opacity:.5;
+}
+.bottom-cta__inner{position:relative;z-index:1;max-width:680px;margin:0 auto}
+.bottom-cta h2{
+  font-family:var(--display);font-weight:400;
+  font-size:clamp(2.4rem,5.5vw,4.4rem);
+  line-height:1;letter-spacing:-.03em;
+  margin:0 0 .5em;
+}
+.bottom-cta h2 .italic{font-style:italic;color:var(--lulo)}
+.bottom-cta p{
+  font-family:var(--display);font-style:italic;
+  font-size:1.2rem;color:rgba(250,246,239,.85);
+  max-width:42ch;margin:0 auto 2em;line-height:1.4;
+}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:15px 26px;
+  font-family:var(--sans);font-size:.76rem;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;
+  border-radius:999px;
+  transition:transform .25s,background .25s,color .25s;
+}
+.btn--primary{background:var(--lulo);color:var(--ink)}
+.btn--primary:hover{background:var(--paper);transform:translateY(-2px)}
+.btn::after{content:"→";letter-spacing:0;transition:transform .25s}
+.btn:hover::after{transform:translateX(4px)}
+
+/* ===== Footer (idéntico al home) ===== */
+.footer{
+  background:var(--ink);color:var(--paper);
+  padding:60px clamp(20px,5vw,72px) 36px;
+}
+.footer__inner{display:flex;flex-direction:column;gap:24px;max-width:var(--maxw);margin:0 auto}
+.footer__top{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  flex-wrap:wrap;gap:24px;
+  padding-bottom:30px;border-bottom:1px solid rgba(250,246,239,.15);
+}
+.footer__brand{
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(3rem,6vw,5rem);line-height:1;
+  color:var(--paper);letter-spacing:-.02em;
+}
+.footer__brand::after{
+  content:"●";font-style:normal;color:var(--mango);font-size:.4em;
+  vertical-align:.6em;margin-left:.1em;
+}
+.footer__links{
+  display:flex;gap:18px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:.74rem;
+  letter-spacing:.18em;text-transform:uppercase;
+}
+.footer__links a{color:rgba(250,246,239,.7);transition:color .25s}
+.footer__links a:hover{color:var(--lulo)}
+.footer__bottom{
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:16px;
+  font-family:var(--mono);font-size:.7rem;
+  color:rgba(250,246,239,.5);
+  letter-spacing:.16em;text-transform:uppercase;
+}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity 1s cubic-bezier(.2,.8,.2,1),transform 1s cubic-bezier(.2,.8,.2,1)}
+.reveal.is-visible{opacity:1;transform:none}
+.reveal--delay-1{transition-delay:.08s}
+.reveal--delay-2{transition-delay:.16s}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav__brand" href="index.html">Frutinas</a>
+  <div class="nav__links">
+    <a href="carta.html" aria-current="page">Carta</a>
+    <a href="index.html#concepto">Concepto</a>
+    <a href="index.html#locales">Locales</a>
+    <a href="pedir.html">Pedir</a>
+  </div>
+  <a class="nav__cta" href="pedir.html">Pedir ya</a>
+</nav>
+
+<!-- HEADER -->
+<header class="page-header">
+  <div class="page-header__container">
+    <span class="page-header__eyebrow reveal">La carta completa</span>
+    <h1 class="page-header__title reveal reveal--delay-1">
+      Todo lo de <span class="italic">Frutinas</span>, en un sitio.
+    </h1>
+    <p class="page-header__lede reveal reveal--delay-2">
+      Recetas tradicionales del Valle del Cauca, hechas con fruta fresca cada mañana. Precios reales de los locales de Valencia.
+    </p>
+  </div>
+</header>
+
+<!-- TOC -->
+<nav class="toc">
+  <div class="toc__inner">
+    <a href="#cholados">01 · Cholados</a>
+    <a href="#raspados">02 · Raspados</a>
+    <a href="#fruta">03 · Fruta fresca</a>
+    <a href="#obleas">04 · Obleas y solteritas</a>
+    <a href="#merengones">05 · Merengones</a>
+    <a href="#tradicionales">06 · Tradicionales</a>
+    <a href="#bebidas">07 · Bebidas</a>
+  </div>
+</nav>
+
+<!-- ===== CHOLADOS ===== -->
+<section class="cat" id="cholados">
+  <div class="cat__container">
+    <div class="cat__head">
+      <div>
+        <div class="cat__num reveal">N.º 01 · La especialidad</div>
+        <h2 class="cat__title reveal reveal--delay-1">
+          <span class="italic">Cholados</span>
+        </h2>
+      </div>
+      <p class="cat__desc reveal reveal--delay-2">Hielo triturado con esencia de fresa, crema de la casa y fruta del trópico. El cholado nació en Jamundí, Valle del Cauca. Aquí lo hacemos como allá.</p>
+    </div>
+
+    <div class="dishes">
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Fruti <span class="italic">Cholado</span></h3>
+          <span class="dish__price">8,50 € / 9,50 €</span>
+        </div>
+        <p class="dish__desc">Hielo triturado con esencia de fresa y crema de la casa. Acompañado de maracuyá, mango, piña, guanábana, banano, leche condensada y milo.</p>
+        <div class="dish__sizes">
+          <span>Mediano <strong>8,50 €</strong></span>
+          <span>Grande <strong>9,50 €</strong></span>
+        </div>
+        <span class="dish__tag dish__tag--star">★ El más pedido</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RASPADOS ===== -->
+<section class="cat" id="raspados">
+  <div class="cat__container">
+    <div class="cat__head">
+      <div>
+        <div class="cat__num reveal">N.º 02</div>
+        <h2 class="cat__title reveal reveal--delay-1">
+          <span class="italic">Raspados</span>
+        </h2>
+      </div>
+      <p class="cat__desc reveal reveal--delay-2">Hielo triturado con esencia y leche condensada. Frescos, rápidos, refrescantes.</p>
+    </div>
+
+    <div class="dishes">
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name"><span class="italic">Maracuyazo</span></h3>
+          <span class="dish__price">8,00 €</span>
+        </div>
+        <p class="dish__desc">Hielo triturado con esencia de maracuyá, mucha maracuyá y leche condensada. Ácido y dulce a la vez.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Raspado <span class="italic">de capas</span></h3>
+          <span class="dish__price">6,50 €</span>
+        </div>
+        <p class="dish__desc">Hielo triturado con esencia de fresa, limón y leche condensada aplicado por capas para disfrutar de cada sabor.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Raspado <span class="italic">mango-maracuyá</span></h3>
+          <span class="dish__price">6,50 €</span>
+        </div>
+        <p class="dish__desc">Hielo triturado con esencia de mango-maracuyá, limón y leche condensada aplicado por capas.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Fruti <span class="italic">Lulada</span></h3>
+          <span class="dish__price">11,50 €</span>
+        </div>
+        <p class="dish__desc">Trozos de lulo, toque especial de la casa, limón, hielo triturado y mucha leche condensada.</p>
+        <span class="dish__tag dish__tag--lulo">Cítrico</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FRUTA FRESCA ===== -->
+<section class="cat" id="fruta">
+  <div class="cat__container">
+    <div class="cat__head">
+      <div>
+        <div class="cat__num reveal">N.º 03</div>
+        <h2 class="cat__title reveal reveal--delay-1">
+          <span class="italic">Fruta</span> fresca
+        </h2>
+      </div>
+      <p class="cat__desc reveal reveal--delay-2">Cada mañana llegan al local. Las elegimos al peso, las cortamos a la vista.</p>
+    </div>
+
+    <div class="dishes">
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Ensalada de frutas <span class="italic">Super</span></h3>
+          <span class="dish__price">13,00 €</span>
+        </div>
+        <p class="dish__desc">Crema de la casa con 7 frutas a elegir, queso fresco, barquillos, mermelada de mora y arequipe. Para compartir o llevárselo todo.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Ensalada de frutas <span class="italic">Medium</span></h3>
+          <span class="dish__price">11,00 €</span>
+        </div>
+        <p class="dish__desc">Crema de la casa con 6 frutas a elegir, queso fresco y barquillos.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Ensalada de <span class="italic">Frutinas</span> (mini)</h3>
+          <span class="dish__price">8,50 €</span>
+        </div>
+        <p class="dish__desc">Crema de la casa, acompañada de 5 frutas a elegir, con queso y barquillos.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name"><span class="italic">Fresas</span></h3>
+          <span class="dish__price">10,00 €</span>
+        </div>
+        <p class="dish__desc">Fresas con deliciosa crema de la casa, leche condensada y 2 toppings a elegir.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Mango <span class="italic">biche</span></h3>
+          <span class="dish__price">8,50 €</span>
+        </div>
+        <p class="dish__desc">Trozos de mango verde con sal, limón, tajín, pimienta y leche condensada. Picante y refrescante.</p>
+        <span class="dish__tag dish__tag--mango">Con picante</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== OBLEAS Y SOLTERITAS ===== -->
+<section class="cat" id="obleas">
+  <div class="cat__container">
+    <div class="cat__head">
+      <div>
+        <div class="cat__num reveal">N.º 04</div>
+        <h2 class="cat__title reveal reveal--delay-1">
+          <span class="italic">Obleas</span> y solteritas
+        </h2>
+      </div>
+      <p class="cat__desc reveal reveal--delay-2">Galleta crujiente con todo lo que cabe encima. La merienda colombiana por excelencia.</p>
+    </div>
+
+    <div class="dishes">
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Súper <span class="italic">Oblea</span></h3>
+          <span class="dish__price">9,00 €</span>
+        </div>
+        <p class="dish__desc">Galleta crujiente con mermelada de mora, arequipe, crema de la casa, leche condensada y 3 frutas a elegir.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Oblea con <span class="italic">queso</span></h3>
+          <span class="dish__price">7,00 €</span>
+        </div>
+        <p class="dish__desc">La clásica. Galleta, arequipe, queso fresco rallado y crema de la casa.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Oblea <span class="italic">sencilla</span></h3>
+          <span class="dish__price">4,50 €</span>
+        </div>
+        <p class="dish__desc">Galleta crujiente con arequipe y crema de la casa. Para ir abriendo boca.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name"><span class="italic">Solterita</span></h3>
+          <span class="dish__price">6,50 €</span>
+        </div>
+        <p class="dish__desc">Galleta crocante con la típica crema de solterita, leche condensada y mermelada de mora.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== MERENGONES ===== -->
+<section class="cat" id="merengones">
+  <div class="cat__container">
+    <div class="cat__head">
+      <div>
+        <div class="cat__num reveal">N.º 05</div>
+        <h2 class="cat__title reveal reveal--delay-1">
+          <span class="italic">Merengones</span>
+        </h2>
+      </div>
+      <p class="cat__desc reveal reveal--delay-2">Merengue, crema y fruta fresca. La pesadilla de cualquiera que esté a dieta.</p>
+    </div>
+
+    <div class="dishes">
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Súper <span class="italic">Merengón</span></h3>
+          <span class="dish__price">11,50 €</span>
+        </div>
+        <p class="dish__desc">Merengue casero, crema de la casa, leche condensada, mermelada de mora y 4 frutas frescas a elegir. Generoso.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Mini <span class="italic">Merengón</span></h3>
+          <span class="dish__price">10,50 €</span>
+        </div>
+        <p class="dish__desc">Misma fórmula, tamaño individual. Para no compartir.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TRADICIONALES ===== -->
+<section class="cat" id="tradicionales">
+  <div class="cat__container">
+    <div class="cat__head">
+      <div>
+        <div class="cat__num reveal">N.º 06 · Lo más colombiano</div>
+        <h2 class="cat__title reveal reveal--delay-1">
+          <span class="italic">Tradicionales</span>
+        </h2>
+      </div>
+      <p class="cat__desc reveal reveal--delay-2">Recetas que no traducen bien al español castellano. Hay que probarlas.</p>
+    </div>
+
+    <div class="dishes">
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name"><span class="italic">Chontaduro</span></h3>
+          <span class="dish__price">6,50 €</span>
+        </div>
+        <p class="dish__desc">Trozos de chontaduro, acompañado de sal, limón y miel. Es un fruto afrodisíaco del Pacífico colombiano.</p>
+        <span class="dish__tag dish__tag--mango">Tradicional</span>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name"><span class="italic">Guanabanazo</span></h3>
+          <span class="dish__price">11,50 €</span>
+        </div>
+        <p class="dish__desc">Delicioso sorvete cremoso, mucha mota de guanábana, leche condensada y milo.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Fruti <span class="italic">Biche</span></h3>
+          <span class="dish__price">8,50 €</span>
+        </div>
+        <p class="dish__desc">Trozos de mango verde con sal, limón, tajín, pimienta y leche condensada.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== BEBIDAS ===== -->
+<section class="cat" id="bebidas">
+  <div class="cat__container">
+    <div class="cat__head">
+      <div>
+        <div class="cat__num reveal">N.º 07</div>
+        <h2 class="cat__title reveal reveal--delay-1">
+          <span class="italic">Bebidas</span>
+        </h2>
+      </div>
+      <p class="cat__desc reveal reveal--delay-2">Para acompañar o para llevarse en plan rápido.</p>
+    </div>
+
+    <div class="dishes">
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Zumo <span class="italic">natural</span></h3>
+          <span class="dish__price">desde 4,50 €</span>
+        </div>
+        <p class="dish__desc">Maracuyá, mora, lulo, mango, piña. Recién exprimido.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Agua</h3>
+          <span class="dish__price">1,00 €</span>
+        </div>
+        <p class="dish__desc">Agua para hidratar en cualquier momento.</p>
+      </article>
+
+      <article class="dish reveal">
+        <div class="dish__head">
+          <h3 class="dish__name">Refrescos</h3>
+          <span class="dish__price">desde 2,00 €</span>
+        </div>
+        <p class="dish__desc">Coca-Cola, Fanta, Aquarius y compañía. Lo de siempre.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA al final ===== -->
+<section class="bottom-cta">
+  <span class="bottom-cta__bg" aria-hidden="true">¡pide!</span>
+  <div class="bottom-cta__inner">
+    <h2 class="reveal">¿Y ahora? <span class="italic">A pedir.</span></h2>
+    <p class="reveal reveal--delay-1">WhatsApp, Glovo, Uber Eats, Just Eat. Tú eliges cómo.</p>
+    <a class="btn btn--primary reveal reveal--delay-2" href="pedir.html">Ver formas de pedir</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__top">
+      <div class="footer__brand">Frutinas</div>
+      <div class="footer__links">
+        <a href="index.html">Inicio</a>
+        <a href="pedir.html">Pedir</a>
+        <a href="https://instagram.com/frutinass" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://tiktok.com/@frutinas" target="_blank" rel="noopener">TikTok</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div>© 2026 Frutinas · Desde Colombia, gustos latinos</div>
+      <div>Valencia · Madrid · Alicante</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+if('IntersectionObserver' in window){
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.classList.add('is-visible');
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:.12,rootMargin:'0px 0px -50px 0px'});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+} else {
+  document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('is-visible')});
+}
+</script>
+
+</body>
+</html>

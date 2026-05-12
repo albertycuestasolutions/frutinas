@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedir · Frutinas — WhatsApp, Glovo, Uber Eats, Just Eat</title>
+<meta name="description" content="Cómo pedir en Frutinas. WhatsApp directo, Glovo, Uber Eats, Just Eat. Valencia, Madrid, Alicante. Todos los días 14:00–21:30.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#faf6ef; --paper-2:#f3ecdf; --paper-3:#eadfca;
+  --ink:#1a0f1f; --ink-soft:#3a2842; --ink-dim:#6e5872;
+  --grape:#5b1d8a; --grape-deep:#3a0f5e; --grape-soft:#a47cc7;
+  --mango:#ff8c2a; --lulo:#f4d03f; --mora:#7a1b6b;
+  --line:rgba(26,15,31,.12);
+  --display:'Instrument Serif','Times New Roman',serif;
+  --sans:'Bricolage Grotesque',system-ui,sans-serif;
+  --mono:'DM Mono','Courier New',monospace;
+  --maxw:1180px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-weight:400;font-size:16px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1000;
+  opacity:.18;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='5'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.06  0 0 0 0 0.12  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* NAV */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px clamp(20px,4vw,52px);
+  background:rgba(250,246,239,.78);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.nav__brand{
+  font-family:var(--display);font-size:1.7rem;font-style:italic;
+  letter-spacing:-.02em;line-height:1;color:var(--grape);
+  display:flex;align-items:baseline;gap:8px;
+}
+.nav__brand::after{content:"●";font-style:normal;color:var(--mango);font-size:.6em;transform:translateY(-.2em)}
+.nav__links{display:none;gap:28px;font-size:.78rem;text-transform:uppercase;letter-spacing:.16em;color:var(--ink-soft);font-weight:500}
+.nav__links a{position:relative;padding:6px 0;transition:color .25s}
+.nav__links a:hover,.nav__links a[aria-current]{color:var(--grape)}
+.nav__links a[aria-current]::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--grape);
+}
+.nav__cta{
+  font-family:var(--sans);font-size:.74rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.16em;
+  background:var(--grape);color:var(--paper);
+  padding:11px 20px;border-radius:999px;
+  transition:transform .25s,background .25s;
+}
+.nav__cta:hover{background:var(--ink);transform:translateY(-1px)}
+@media(min-width:900px){.nav__links{display:flex}}
+
+/* HEADER */
+.page-header{
+  padding:clamp(120px,16vh,180px) clamp(20px,5vw,72px) clamp(60px,8vh,100px);
+  text-align:center;
+  position:relative;
+}
+.page-header__container{max-width:780px;margin:0 auto}
+.page-header__eyebrow{
+  font-family:var(--mono);
+  font-size:.74rem;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--grape);
+  display:inline-flex;align-items:center;gap:14px;font-weight:500;
+}
+.page-header__eyebrow::before{content:"";width:24px;height:1px;background:var(--grape)}
+.page-header__title{
+  font-family:var(--display);font-weight:400;
+  font-size:clamp(3rem,8vw,7rem);
+  line-height:.95;letter-spacing:-.04em;
+  margin:.3em 0 .4em;
+}
+.page-header__title .italic{font-style:italic;color:var(--grape)}
+.page-header__title .hl{
+  font-style:italic;
+  background:var(--lulo);
+  color:var(--ink);
+  padding:.02em .14em .08em;
+  border-radius:6px;white-space:nowrap;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone;
+  display:inline-block;line-height:1.1;
+}
+.page-header__lede{
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(1.15rem,1.6vw,1.45rem);
+  color:var(--ink-soft);
+  max-width:46ch;line-height:1.4;margin:0 auto;
+}
+
+/* ===== CARDS de plataformas ===== */
+.platforms{
+  padding:0 clamp(20px,5vw,72px) clamp(60px,8vh,100px);
+}
+.platforms__container{max-width:var(--maxw);margin:0 auto}
+
+/* WhatsApp es el hero, ocupa toda la fila */
+.platform-hero{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:24px;
+  background:var(--grape);
+  color:var(--paper);
+  border-radius:8px;
+  padding:clamp(36px,5vw,60px);
+  position:relative;
+  overflow:hidden;
+  margin-bottom:24px;
+  transition:transform .35s cubic-bezier(.2,.8,.2,1);
+}
+.platform-hero:hover{transform:translateY(-3px)}
+.platform-hero__bg{
+  position:absolute;
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(14rem,28vw,22rem);
+  line-height:.8;letter-spacing:-.05em;
+  color:var(--grape-deep);
+  top:50%;right:-5%;
+  transform:translateY(-50%);
+  z-index:0;pointer-events:none;user-select:none;opacity:.5;
+}
+.platform-hero__inner{position:relative;z-index:1}
+.platform-hero__tag{
+  font-family:var(--mono);
+  font-size:.7rem;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--lulo);
+  display:inline-flex;align-items:center;gap:14px;
+  margin-bottom:1em;
+}
+.platform-hero__tag::before{content:"";width:24px;height:1px;background:var(--lulo)}
+.platform-hero__title{
+  font-family:var(--display);font-weight:400;
+  font-size:clamp(2.4rem,6vw,4.8rem);
+  line-height:1;letter-spacing:-.03em;
+  margin:0 0 .35em;
+}
+.platform-hero__title .italic{font-style:italic;color:var(--lulo)}
+.platform-hero__desc{
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(1.1rem,1.5vw,1.35rem);
+  color:rgba(250,246,239,.85);
+  max-width:42ch;margin:0 0 1.8em;line-height:1.4;
+}
+.platform-hero__buttons{
+  display:flex;gap:12px;flex-wrap:wrap;
+}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:15px 26px;
+  font-family:var(--sans);font-size:.76rem;font-weight:600;
+  letter-spacing:.18em;text-transform:uppercase;
+  border-radius:999px;
+  transition:transform .25s,background .25s,color .25s;
+}
+.btn--lulo{background:var(--lulo);color:var(--ink)}
+.btn--lulo:hover{background:var(--paper);transform:translateY(-2px)}
+.btn--ghost-light{background:transparent;color:var(--paper);border:1px solid var(--paper)}
+.btn--ghost-light:hover{background:var(--paper);color:var(--grape);transform:translateY(-2px)}
+.btn::after{content:"→";letter-spacing:0;transition:transform .25s}
+.btn:hover::after{transform:translateX(4px)}
+
+/* grid de plataformas secundarias */
+.platforms__grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:18px;
+}
+.platform{
+  display:flex;flex-direction:column;
+  background:var(--paper-2);
+  border:1px solid var(--ink);
+  border-radius:6px;
+  padding:32px 28px;
+  position:relative;overflow:hidden;
+  transition:background .3s,transform .35s cubic-bezier(.2,.8,.2,1),color .3s;
+}
+.platform:hover{
+  background:var(--ink);
+  color:var(--paper);
+  transform:translateY(-4px);
+}
+.platform:hover .platform__num,
+.platform:hover .platform__desc{color:rgba(250,246,239,.7)}
+.platform:hover .platform__name{color:var(--lulo)}
+.platform:hover .platform__cta{color:var(--paper);border-color:var(--paper)}
+.platform__num{
+  font-family:var(--mono);
+  font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ink-dim);
+  margin-bottom:18px;
+  transition:color .3s;
+}
+.platform__name{
+  font-family:var(--display);font-style:italic;font-weight:400;
+  font-size:clamp(2rem,3.5vw,2.6rem);
+  line-height:1;color:var(--grape);
+  margin:0 0 12px;letter-spacing:-.02em;
+  transition:color .3s;
+}
+.platform__desc{
+  font-family:var(--sans);font-size:.95rem;
+  color:var(--ink-soft);
+  line-height:1.5;margin:0 0 24px;flex:1;
+  transition:color .3s;
+}
+.platform__cta{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:.7rem;
+  letter-spacing:.18em;text-transform:uppercase;
+  font-weight:500;color:var(--ink);
+  padding-top:18px;
+  border-top:1px solid var(--ink);
+  transition:color .3s,border-color .3s;
+}
+.platform__cta::after{
+  content:"→";letter-spacing:0;
+  transition:transform .3s;
+}
+.platform:hover .platform__cta::after{transform:translateX(4px)}
+
+@media(min-width:700px){
+  .platforms__grid{grid-template-columns:repeat(3,1fr)}
+}
+
+/* ===== Tira de info ===== */
+.info-strip{
+  background:var(--ink);
+  color:var(--paper);
+  padding:clamp(50px,7vh,80px) clamp(20px,5vw,72px);
+}
+.info-strip__container{
+  max-width:var(--maxw);margin:0 auto;
+  display:grid;grid-template-columns:1fr;gap:32px;
+}
+.info-strip__item dt{
+  font-family:var(--mono);
+  font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;
+  color:rgba(250,246,239,.5);
+  margin-bottom:8px;
+}
+.info-strip__item dd{
+  margin:0;
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(1.3rem,2vw,1.7rem);
+  line-height:1.3;color:var(--paper);
+}
+.info-strip__item dd a{color:var(--lulo);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+@media(min-width:700px){
+  .info-strip__container{grid-template-columns:repeat(4,1fr)}
+}
+
+/* ===== LOCALES ===== */
+.locations{padding:clamp(70px,9vh,110px) clamp(20px,5vw,72px)}
+.locations__head{
+  max-width:var(--maxw);margin:0 auto 60px;
+  text-align:center;
+}
+.locations__eyebrow{
+  font-family:var(--mono);
+  font-size:.74rem;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--grape);
+  display:inline-flex;align-items:center;gap:14px;font-weight:500;
+}
+.locations__eyebrow::before{content:"";width:24px;height:1px;background:var(--grape)}
+.locations__title{
+  font-family:var(--display);font-weight:400;
+  font-size:clamp(2.4rem,5.5vw,4.4rem);
+  line-height:1;letter-spacing:-.03em;
+  margin:.4em 0 0;
+}
+.locations__title .italic{font-style:italic;color:var(--grape)}
+
+/* tabs ciudad */
+.city-tabs{
+  max-width:var(--maxw);margin:40px auto 0;
+  display:flex;gap:8px;flex-wrap:wrap;
+  border-bottom:1px solid var(--line);padding-bottom:4px;
+  justify-content:center;
+}
+.city-tab{
+  display:inline-flex;flex-direction:column;align-items:flex-start;gap:4px;
+  padding:14px 22px;
+  background:transparent;border:0;
+  border-bottom:2px solid transparent;
+  cursor:pointer;margin-bottom:-2px;
+  transition:border-color .3s,background .3s;
+  font-family:inherit;
+}
+.city-tab:hover{background:var(--paper-2)}
+.city-tab.is-active{border-bottom-color:var(--grape)}
+.city-tab__name{
+  font-family:var(--display);font-style:italic;font-weight:400;
+  font-size:clamp(1.6rem,2.5vw,2rem);
+  line-height:1;color:var(--ink-dim);
+  letter-spacing:-.02em;transition:color .3s;
+}
+.city-tab.is-active .city-tab__name,
+.city-tab:hover .city-tab__name{color:var(--grape)}
+.city-tab__count{
+  font-family:var(--mono);font-size:.62rem;
+  letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ink-dim);font-weight:500;
+}
+
+.locations__grid{
+  max-width:var(--maxw);margin:32px auto 0;
+  display:none;grid-template-columns:1fr;gap:18px;
+}
+.locations__grid.is-active{
+  display:grid;
+  animation:fadeUpPanel .5s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes fadeUpPanel{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:none}
+}
+.location{
+  background:var(--paper-2);
+  border:1px solid var(--ink);
+  padding:32px 26px;
+  border-radius:4px;
+  display:flex;flex-direction:column;
+  transition:background .3s,transform .35s cubic-bezier(.2,.8,.2,1),color .3s;
+}
+.location:hover{background:var(--grape);color:var(--paper);transform:translateY(-3px)}
+.location:hover .location__num,
+.location:hover .location__address,
+.location:hover .location__hours,
+.location:hover .location__cta{color:var(--paper)}
+.location:hover .location__city-meta{color:rgba(250,246,239,.7)}
+.location:hover .location__city{color:var(--lulo)}
+.location:hover .location__cta{border-color:var(--paper)}
+.location__num{
+  font-family:var(--mono);
+  font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--ink-dim);margin-bottom:20px;
+  transition:color .3s;
+}
+.location__city{
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(1.8rem,3vw,2.3rem);
+  line-height:1;color:var(--grape);
+  margin:0 0 4px;
+  transition:color .3s;
+}
+.location__city-meta{
+  font-family:var(--mono);font-size:.66rem;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink-dim);margin-bottom:20px;
+  transition:color .3s;
+}
+.location__address{
+  font-family:var(--sans);font-size:.96rem;font-weight:500;
+  color:var(--ink);margin:0 0 12px;line-height:1.4;
+  transition:color .3s;
+}
+.location__hours{
+  font-family:var(--mono);font-size:.74rem;
+  color:var(--ink-soft);flex:1;
+  transition:color .3s;
+}
+.location__cta{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:var(--mono);font-size:.66rem;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink);font-weight:500;
+  margin-top:20px;padding-top:14px;
+  border-top:1px solid var(--ink);
+  transition:color .3s,border-color .3s;
+}
+.location__cta::after{content:"→";letter-spacing:0;transition:transform .25s}
+.location:hover .location__cta::after{transform:translateX(4px)}
+
+@media(min-width:700px){
+  .locations__grid.is-active{grid-template-columns:repeat(3,1fr)}
+}
+
+/* FOOTER */
+.footer{
+  background:var(--ink);color:var(--paper);
+  padding:60px clamp(20px,5vw,72px) 36px;
+}
+.footer__inner{display:flex;flex-direction:column;gap:24px;max-width:var(--maxw);margin:0 auto}
+.footer__top{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  flex-wrap:wrap;gap:24px;
+  padding-bottom:30px;border-bottom:1px solid rgba(250,246,239,.15);
+}
+.footer__brand{
+  font-family:var(--display);font-style:italic;
+  font-size:clamp(3rem,6vw,5rem);line-height:1;
+  color:var(--paper);letter-spacing:-.02em;
+}
+.footer__brand::after{
+  content:"●";font-style:normal;color:var(--mango);font-size:.4em;
+  vertical-align:.6em;margin-left:.1em;
+}
+.footer__links{
+  display:flex;gap:18px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:.74rem;
+  letter-spacing:.18em;text-transform:uppercase;
+}
+.footer__links a{color:rgba(250,246,239,.7);transition:color .25s}
+.footer__links a:hover{color:var(--lulo)}
+.footer__bottom{
+  display:flex;justify-content:space-between;align-items:center;
+  flex-wrap:wrap;gap:16px;
+  font-family:var(--mono);font-size:.7rem;
+  color:rgba(250,246,239,.5);
+  letter-spacing:.16em;text-transform:uppercase;
+}
+
+/* reveal */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity 1s cubic-bezier(.2,.8,.2,1),transform 1s cubic-bezier(.2,.8,.2,1)}
+.reveal.is-visible{opacity:1;transform:none}
+.reveal--delay-1{transition-delay:.08s}
+.reveal--delay-2{transition-delay:.16s}
+.reveal--delay-3{transition-delay:.24s}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="nav__brand" href="index.html">Frutinas</a>
+  <div class="nav__links">
+    <a href="carta.html">Carta</a>
+    <a href="index.html#concepto">Concepto</a>
+    <a href="index.html#locales">Locales</a>
+    <a href="pedir.html" aria-current="page">Pedir</a>
+  </div>
+  <a class="nav__cta" href="#whatsapp">Pedir ya</a>
+</nav>
+
+<!-- HEADER -->
+<header class="page-header">
+  <div class="page-header__container">
+    <span class="page-header__eyebrow reveal">Cómo pedir</span>
+    <h1 class="page-header__title reveal reveal--delay-1">
+      Tú eliges <span class="hl">cómo.</span><br>
+      Nosotros <span class="italic">a ello.</span>
+    </h1>
+    <p class="page-header__lede reveal reveal--delay-2">
+      Cuatro maneras de tener un cholado en casa. WhatsApp es la más rápida, las plataformas vienen con repartidor incluido.
+    </p>
+  </div>
+</header>
+
+<!-- PLATAFORMAS -->
+<section class="platforms">
+  <div class="platforms__container">
+
+    <!-- WhatsApp como hero -->
+    <a class="platform-hero reveal" href="https://wa.me/34613226539" id="whatsapp">
+      <span class="platform-hero__bg" aria-hidden="true">¡ya!</span>
+      <div class="platform-hero__inner">
+        <span class="platform-hero__tag">La más rápida</span>
+        <h2 class="platform-hero__title">
+          Pide por <span class="italic">WhatsApp.</span>
+        </h2>
+        <p class="platform-hero__desc">Llamas, te atendemos directo, sin comisiones de plataforma. Te decimos cuánto tarda según tu zona y listo.</p>
+        <div class="platform-hero__buttons">
+          <span class="btn btn--lulo">Abrir WhatsApp · 613 22 65 39</span>
+          <a class="btn btn--ghost-light" href="tel:+34613226539" onclick="event.stopPropagation()">Llamar</a>
+        </div>
+      </div>
+    </a>
+
+    <!-- grid de las otras 3 plataformas -->
+    <div class="platforms__grid">
+
+      <a class="platform reveal" href="https://www.ubereats.com/es/store/frutinas-cirilo-amoros/F_OadjldUTu57_didxwikw" target="_blank" rel="noopener">
+        <div class="platform__num">N.º 02</div>
+        <h3 class="platform__name">Uber Eats</h3>
+        <p class="platform__desc">Los tres locales disponibles: Cirilo Amorós, Centro y Cuenca. Pedido directo a la app, repartidor en moto.</p>
+        <span class="platform__cta">Abrir en Uber Eats</span>
+      </a>
+
+      <a class="platform reveal reveal--delay-1" href="https://glovoapp.com/es/es/valencia/stores/frutinas-valencia" target="_blank" rel="noopener">
+        <div class="platform__num">N.º 03</div>
+        <h3 class="platform__name">Glovo</h3>
+        <p class="platform__desc">Si ya tienes Glovo Prime te sale a cuenta. 94 % de clientes recomiendan el local en la plataforma.</p>
+        <span class="platform__cta">Abrir en Glovo</span>
+      </a>
+
+      <a class="platform reveal reveal--delay-2" href="https://www.just-eat.es/restaurants-frutinas-valencia/menu" target="_blank" rel="noopener">
+        <div class="platform__num">N.º 04</div>
+        <h3 class="platform__name">Just Eat</h3>
+        <p class="platform__desc">Carta completa con descuentos puntuales. Programa la entrega o recogida para más tarde.</p>
+        <span class="platform__cta">Abrir en Just Eat</span>
+      </a>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- TIRA DE INFO -->
+<section class="info-strip">
+  <dl class="info-strip__container">
+    <div class="info-strip__item reveal">
+      <dt>Horario</dt>
+      <dd>14:00 — 21:30<br>Todos los días</dd>
+    </div>
+    <div class="info-strip__item reveal reveal--delay-1">
+      <dt>WhatsApp</dt>
+      <dd><a href="https://wa.me/34613226539">613 22 65 39</a></dd>
+    </div>
+    <div class="info-strip__item reveal reveal--delay-2">
+      <dt>Email</dt>
+      <dd><a href="mailto:frutinasespana@gmail.com">frutinasespana<br>@gmail.com</a></dd>
+    </div>
+    <div class="info-strip__item reveal reveal--delay-3">
+      <dt>Síguenos</dt>
+      <dd><a href="https://instagram.com/frutinass" target="_blank" rel="noopener">@frutinass</a></dd>
+    </div>
+  </dl>
+</section>
+
+<!-- LOCALES (recordatorio) -->
+<section class="locations" id="locales">
+  <div class="locations__head">
+    <span class="locations__eyebrow reveal">O si prefieres venir</span>
+    <h2 class="locations__title reveal reveal--delay-1">
+      Tres ciudades, el <span class="italic">mismo</span> cholado.
+    </h2>
+  </div>
+
+  <!-- tabs de ciudad -->
+  <div class="city-tabs reveal" role="tablist">
+    <button class="city-tab is-active" role="tab" aria-selected="true" data-city="valencia">
+      <span class="city-tab__name">Valencia</span>
+      <span class="city-tab__count">3 locales</span>
+    </button>
+    <button class="city-tab" role="tab" aria-selected="false" data-city="madrid">
+      <span class="city-tab__name">Madrid</span>
+      <span class="city-tab__count">1 local</span>
+    </button>
+    <button class="city-tab" role="tab" aria-selected="false" data-city="alicante">
+      <span class="city-tab__name">Alicante</span>
+      <span class="city-tab__count">1 local</span>
+    </button>
+  </div>
+
+  <!-- Valencia -->
+  <div class="locations__grid is-active" data-city-panel="valencia">
+    <a class="location reveal" href="https://www.google.com/maps/search/?api=1&query=Carrer+de+Ciril+Amor%C3%B3s+1+46004+Val%C3%A8ncia" target="_blank" rel="noopener">
+      <div class="location__num">N.º 01 · Valencia</div>
+      <h3 class="location__city">Cirilo Amorós</h3>
+      <div class="location__city-meta">L'Eixample</div>
+      <p class="location__address">Carrer de Ciril Amorós, 1<br>46004 València</p>
+      <div class="location__hours">Todos los días · 14:00 — 21:30</div>
+      <span class="location__cta">Ver en Google Maps</span>
+    </a>
+
+    <a class="location reveal reveal--delay-1" href="https://www.google.com/maps/search/?api=1&query=Carrer+de+Cuenca+36+46007+Val%C3%A8ncia" target="_blank" rel="noopener">
+      <div class="location__num">N.º 02 · Valencia</div>
+      <h3 class="location__city">Cuenca</h3>
+      <div class="location__city-meta">Extramurs</div>
+      <p class="location__address">Carrer de Cuenca, 36, bajo izq.<br>46007 València</p>
+      <div class="location__hours">Todos los días · 14:00 — 21:30</div>
+      <span class="location__cta">Ver en Google Maps</span>
+    </a>
+
+    <a class="location reveal reveal--delay-2" href="https://www.google.com/maps/search/?api=1&query=Carrer+del+Periodista+Azzati+4+46002+Val%C3%A8ncia" target="_blank" rel="noopener">
+      <div class="location__num">N.º 03 · Valencia</div>
+      <h3 class="location__city">Centro</h3>
+      <div class="location__city-meta">Periodista Azzati</div>
+      <p class="location__address">Carrer del Periodista Azzati, 4<br>46002 València</p>
+      <div class="location__hours">Todos los días · 14:00 — 21:30</div>
+      <span class="location__cta">Ver en Google Maps</span>
+    </a>
+  </div>
+
+  <!-- Madrid -->
+  <div class="locations__grid" data-city-panel="madrid">
+    <a class="location reveal" href="https://www.google.com/maps/search/?api=1&query=Calle+de+San+Bernardo+20+Madrid" target="_blank" rel="noopener">
+      <div class="location__num">N.º 01 · Madrid</div>
+      <h3 class="location__city">San Bernardo</h3>
+      <div class="location__city-meta">Malasaña · Centro</div>
+      <p class="location__address">Calle de San Bernardo, 20<br>28015 Madrid</p>
+      <div class="location__hours">Todos los días · 14:00 — 21:00</div>
+      <span class="location__cta">Ver en Google Maps</span>
+    </a>
+  </div>
+
+  <!-- Alicante -->
+  <div class="locations__grid" data-city-panel="alicante">
+    <a class="location reveal" href="https://www.google.com/maps/search/?api=1&query=Calle+San+Vicente+21+03004+Alicante" target="_blank" rel="noopener">
+      <div class="location__num">N.º 01 · Alicante</div>
+      <h3 class="location__city">San Vicente</h3>
+      <div class="location__city-meta">Centro histórico</div>
+      <p class="location__address">Calle San Vicente, 21<br>03004 Alicante</p>
+      <div class="location__hours">Todos los días · 14:00 — 21:00</div>
+      <span class="location__cta">Ver en Google Maps</span>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__top">
+      <div class="footer__brand">Frutinas</div>
+      <div class="footer__links">
+        <a href="index.html">Inicio</a>
+        <a href="carta.html">Carta</a>
+        <a href="https://instagram.com/frutinass" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://tiktok.com/@frutinas" target="_blank" rel="noopener">TikTok</a>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div>© 2026 Frutinas · Desde Colombia, gustos latinos</div>
+      <div>Valencia · Madrid · Alicante</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+if('IntersectionObserver' in window){
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        e.target.classList.add('is-visible');
+        io.unobserve(e.target);
+      }
+    });
+  },{threshold:.12,rootMargin:'0px 0px -50px 0px'});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+} else {
+  document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('is-visible')});
+}
+
+/* tabs de ciudad */
+var cityTabs   = document.querySelectorAll('.city-tab');
+var cityPanels = document.querySelectorAll('[data-city-panel]');
+cityTabs.forEach(function(tab){
+  tab.addEventListener('click', function(){
+    var city = tab.dataset.city;
+    cityTabs.forEach(function(t){
+      var active = t === tab;
+      t.classList.toggle('is-active', active);
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+    cityPanels.forEach(function(p){
+      p.classList.toggle('is-active', p.dataset.cityPanel === city);
+    });
+    document.querySelectorAll('[data-city-panel="'+city+'"] .reveal').forEach(function(el){
+      el.classList.add('is-visible');
+    });
+  });
+});
+</script>
+
+</body>
+</html>
