@@ -135,41 +135,31 @@ body::before{
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:clamp(90px,12vh,140px) clamp(20px,3vw,40px) clamp(40px,6vh,80px);
+  padding:0;
   order:2;  /* en desktop va a la derecha */
+  overflow:visible;  /* permite que el cholado se desborde sobre la columna izquierda */
 }
-/* el sello "número de catálogo" detrás del producto */
-.hero__product-mark{
-  position:absolute;
-  top:50%;left:50%;
-  transform:translate(-50%,-50%);
-  font-family:var(--display);
-  font-style:italic;
-  font-size:clamp(18rem,38vw,30rem);
-  line-height:.78;
-  color:var(--grape);
-  opacity:.07;
-  letter-spacing:-.05em;
-  pointer-events:none;
-  user-select:none;
-  z-index:0;
-}
-/* el canvas se renderiza centrado con fondo crema ya integrado en los frames */
+/* el canvas crece más allá del 100% de la columna para que el cholado se sienta protagonista,
+   se desborda hacia la columna del texto creando integración real */
 #seq-canvas{
-  position:relative;
+  position:absolute;
   z-index:1;
   display:block;
-  width:100%;
+  /* el canvas ocupa más ancho que la columna para que el cholado pueda invadir el otro lado */
+  left:-20%;
+  right:-5%;
+  width:125%;
+  top:0;
   height:100%;
-  max-height:88vh;
   background:transparent;
+  pointer-events:none;
 }
 /* pie del producto: índice de frame, micro-detalle de "objeto catalogado" */
 .hero__product-index{
   position:absolute;
   bottom:clamp(28px,4vh,48px);
   right:clamp(24px,3vw,44px);
-  z-index:2;
+  z-index:5;
   font-family:var(--mono);
   font-size:.66rem;
   letter-spacing:.24em;
@@ -195,18 +185,19 @@ body::before{
   position:relative;
   width:100%;
   height:100%;
-  padding:clamp(110px,14vh,150px) clamp(24px,5vw,72px) clamp(40px,6vh,72px);
+  padding:clamp(96px,11vh,120px) clamp(24px,5vw,72px) clamp(32px,5vh,56px);
   display:flex;
   flex-direction:column;
   justify-content:center;
   border-right:1px solid var(--line);
-  background:linear-gradient(to left, rgba(255,140,42,0) 0%, rgba(91,29,138,.025) 100%);
-  order:1;  /* en desktop va a la izquierda */
+  background:transparent;
+  order:1;
+  z-index:3;
 }
 /* cada "slide" del copy se posiciona absoluto y aparece/desaparece según fase */
 .hero__slide{
   position:absolute;
-  inset:clamp(110px,14vh,150px) clamp(24px,5vw,72px) clamp(40px,6vh,72px);
+  inset:clamp(96px,11vh,120px) clamp(24px,5vw,72px) clamp(32px,5vh,56px);
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -214,6 +205,7 @@ body::before{
   transform:translateY(20px);
   transition:opacity .5s ease, transform .5s ease;
   pointer-events:none;
+  z-index:3;
 }
 .hero__slide.is-active{
   opacity:1;
@@ -224,17 +216,17 @@ body::before{
 /* eyebrow común */
 .hero__eyebrow{
   font-family:var(--mono);
-  font-size:.72rem;
+  font-size:.7rem;
   letter-spacing:.24em;
   text-transform:uppercase;
   color:var(--grape);
   display:inline-flex;align-items:center;gap:12px;
-  padding:8px 14px;
+  padding:7px 14px;
   background:var(--paper);
   border:1px solid var(--grape);
   border-radius:999px;
   align-self:flex-start;
-  margin-bottom:1.6em;
+  margin-bottom:1.1em;
 }
 .hero__eyebrow::before{
   content:"";width:6px;height:6px;border-radius:50%;
@@ -250,10 +242,10 @@ body::before{
 .hero__title{
   font-family:var(--display);
   font-weight:400;
-  font-size:clamp(3.4rem,9vw,8rem);
-  line-height:1;  /* algo más de aire para que el highlight no toque la línea de arriba */
+  font-size:clamp(3rem,7.5vw,6.6rem);
+  line-height:1;
   letter-spacing:-.04em;
-  margin:0 0 .4em;
+  margin:0 0 .35em;
   color:var(--ink);
 }
 .hero__title .italic{ font-style:italic; color:var(--grape); }
@@ -279,23 +271,23 @@ body::before{
 .hero__small-label{
   display:block;
   font-family:var(--mono);
-  font-size:.72rem;
+  font-size:.7rem;
   font-style:normal;
   font-weight:500;
   letter-spacing:.3em;
   text-transform:uppercase;
   color:var(--ink-dim);
-  margin-bottom:1.6em;
+  margin-bottom:1.1em;
 }
 
 .hero__lede{
   font-family:var(--display);
   font-style:italic;
-  font-size:clamp(1.1rem,1.6vw,1.5rem);
+  font-size:clamp(1.05rem,1.5vw,1.4rem);
   color:var(--ink-soft);
   max-width:30ch;
   line-height:1.35;
-  margin:0 0 2em;
+  margin:0 0 1.5em;
 }
 
 .hero__cta-row{
@@ -431,6 +423,12 @@ body::before{
     padding:90px 16px 20px;
     height:55vh;
     order:1;  /* en móvil vuelve arriba */
+    overflow:hidden;
+  }
+  #seq-canvas{
+    position:relative;
+    left:auto; right:auto;
+    width:100%;
   }
   .hero__copy-rail{
     padding:0 24px 40px;
@@ -443,7 +441,8 @@ body::before{
     inset:0 24px 40px;
   }
   .hero__title{ font-size:clamp(3rem,11vw,5rem) }
-  .hero__product-mark{ font-size:clamp(12rem,38vw,18rem) }
+  /* en móvil el contador estorba sobre el cholado, lo escondemos */
+  .hero__product-index{ display:none }
 }
 
 /* loader */
@@ -628,22 +627,29 @@ body::before{
 .dish__tag--mango{color:var(--mango);background:rgba(255,140,42,.08)}
 .dish__tag--lulo{color:#9a8a14;background:rgba(244,208,63,.18)}
 
+/* CTA al final del menú resumido */
+.menu__cta{
+  margin-top:60px;
+  padding-top:40px;
+  border-top:1px solid var(--ink);
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:20px 28px;
+}
+.menu__cta-note{
+  font-family:var(--display);
+  font-style:italic;
+  font-size:1.05rem;
+  color:var(--ink-dim);
+}
+
 /* ===== CONCEPTO ===== */
 .concept{ background:var(--paper-2); border-top:1px solid var(--ink); border-bottom:1px solid var(--ink); }
 .concept__grid{
   display:grid;grid-template-columns:1fr;gap:60px;align-items:start;
 }
 .concept__intro{position:relative}
-.concept__bg-word{
-  position:absolute;
-  font-family:var(--display);font-style:italic;
-  font-size:clamp(14rem,26vw,22rem);
-  line-height:.8;letter-spacing:-.05em;
-  color:var(--paper-3);
-  top:-10%;right:-30%;
-  z-index:0;pointer-events:none;user-select:none;
-}
-.concept__intro > *{position:relative;z-index:1}
 .concept__copy{
   display:grid;grid-template-columns:1fr;gap:24px;
   font-family:var(--display);font-weight:400;font-style:italic;
@@ -688,10 +694,70 @@ body::before{
 
 /* ===== UBICACIONES ===== */
 .locations{ background:var(--paper); }
-.locations__grid{
-  display:grid;grid-template-columns:1fr;gap:24px;
+
+/* tabs de ciudad */
+.city-tabs{
+  display:flex;
+  gap:8px;
   margin-top:60px;
+  flex-wrap:wrap;
+  border-bottom:1px solid var(--line);
+  padding-bottom:4px;
 }
+.city-tab{
+  display:inline-flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:4px;
+  padding:14px 22px;
+  background:transparent;
+  border:0;
+  border-bottom:2px solid transparent;
+  cursor:pointer;
+  margin-bottom:-2px;
+  transition:border-color .3s, background .3s;
+}
+.city-tab:hover{ background:var(--paper-2) }
+.city-tab.is-active{
+  border-bottom-color:var(--grape);
+}
+.city-tab__name{
+  font-family:var(--display);
+  font-style:italic;
+  font-weight:400;
+  font-size:clamp(1.6rem,2.5vw,2rem);
+  line-height:1;
+  color:var(--ink-dim);
+  letter-spacing:-.02em;
+  transition:color .3s;
+}
+.city-tab.is-active .city-tab__name,
+.city-tab:hover .city-tab__name{ color:var(--grape) }
+.city-tab__count{
+  font-family:var(--mono);
+  font-size:.62rem;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:var(--ink-dim);
+  font-weight:500;
+}
+
+/* paneles de locales: solo el activo se ve */
+.locations__grid{
+  display:none;
+  grid-template-columns:1fr;
+  gap:24px;
+  margin-top:40px;
+}
+.locations__grid.is-active{
+  display:grid;
+  animation:fadeUpPanel .5s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes fadeUpPanel{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:none}
+}
+
 .location{
   background:var(--paper-2);
   border:1px solid var(--ink);
@@ -699,6 +765,8 @@ body::before{
   border-radius:4px;
   position:relative;
   overflow:hidden;
+  display:flex;
+  flex-direction:column;
   transition:background .3s, transform .35s cubic-bezier(.2,.8,.2,1);
 }
 .location:hover{
@@ -708,9 +776,11 @@ body::before{
 }
 .location:hover .location__address,
 .location:hover .location__hours,
-.location:hover .location__city-meta{ color:var(--paper) }
+.location:hover .location__city-meta,
+.location:hover .location__cta{ color:var(--paper) }
 .location:hover .location__city{ color:var(--lulo) }
 .location:hover .location__num{ color:var(--paper) }
+.location:hover .location__cta{ border-color:var(--paper) }
 .location__num{
   font-family:var(--mono);
   font-size:.74rem;letter-spacing:.24em;text-transform:uppercase;
@@ -749,10 +819,38 @@ body::before{
   font-family:var(--mono);
   font-size:.78rem;
   color:var(--ink-soft);
+  flex:1;
   transition:color .3s;
 }
+.location__cta{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-family:var(--mono);
+  font-size:.7rem;
+  letter-spacing:.2em;
+  text-transform:uppercase;
+  color:var(--ink);
+  font-weight:500;
+  margin-top:24px;
+  padding-top:16px;
+  border-top:1px solid var(--ink);
+  transition:color .3s, border-color .3s;
+}
+.location__cta::after{
+  content:"→";
+  letter-spacing:0;
+  transition:transform .25s;
+}
+.location:hover .location__cta::after{ transform:translateX(4px) }
+
 @media(min-width:900px){
-  .locations__grid{grid-template-columns:repeat(3,1fr);gap:20px}
+  .locations__grid.is-active{grid-template-columns:repeat(3,1fr);gap:20px}
+  /* Madrid y Alicante tienen solo 1 local: que ocupe un tercio nada más, no se estire */
+  .locations__grid[data-city-panel="madrid"].is-active,
+  .locations__grid[data-city-panel="alicante"].is-active{
+    grid-template-columns:repeat(3, 1fr);
+  }
 }
 
 /* ===== RESERVA CTA ===== */
@@ -868,14 +966,14 @@ body::before{
 
 <!-- ===== NAV ===== -->
 <nav class="nav" id="nav">
-  <a class="nav__brand" href="#">Frutinas</a>
+  <a class="nav__brand" href="index.html">Frutinas</a>
   <div class="nav__links">
-    <a href="#menu">Menú</a>
+    <a href="carta.html">Carta</a>
     <a href="#concepto">Concepto</a>
     <a href="#locales">Locales</a>
-    <a href="#contacto">Contacto</a>
+    <a href="pedir.html">Pedir</a>
   </div>
-  <a class="nav__cta" href="https://wa.me/34613226539">Pedir ya</a>
+  <a class="nav__cta" href="pedir.html">Pedir ya</a>
 </nav>
 
 <div id="progress-bar"></div>
@@ -886,7 +984,6 @@ body::before{
 
     <!-- COLUMNA IZQUIERDA: el cholado como objeto -->
     <div class="hero__product">
-      <span class="hero__product-mark" aria-hidden="true">cholado</span>
       <canvas id="seq-canvas" width="1280" height="680"></canvas>
       <div class="hero__product-index">
         <span>N.º <strong id="frameIndex">001</strong> / <span id="frameTotal">281</span></span>
@@ -906,7 +1003,7 @@ body::before{
         </h1>
         <p class="hero__lede">Hielo raspado, crema de la casa y toda la fruta del trópico. Como en Jamundí.</p>
         <div class="hero__cta-row">
-          <a class="hero__btn hero__btn--primary" href="#menu">Ver carta</a>
+          <a class="hero__btn hero__btn--primary" href="carta.html">Ver carta</a>
           <a class="hero__btn hero__btn--ghost" href="#locales">Locales</a>
         </div>
       </div>
@@ -945,7 +1042,7 @@ body::before{
           </div>
           <div class="hero__fact">
             <dt>Locales</dt>
-            <dd>3 en Valencia</dd>
+            <dd>5 en 3 ciudades</dd>
           </div>
           <div class="hero__fact">
             <dt>Mediano</dt>
@@ -957,7 +1054,7 @@ body::before{
           </div>
         </dl>
         <div class="hero__cta-row">
-          <a class="hero__btn hero__btn--primary" href="https://wa.me/34613226539">Pedir por WhatsApp</a>
+          <a class="hero__btn hero__btn--primary" href="pedir.html">Cómo pedir</a>
         </div>
       </div>
 
@@ -1008,7 +1105,7 @@ body::before{
           como en casa.
         </h2>
       </div>
-      <p class="reveal reveal--delay-2">Recetas tradicionales del Valle del Cauca, hechas con fruta fresca cada mañana. Precios reales del local.</p>
+      <p class="reveal reveal--delay-2">Una selección de los más pedidos. La carta completa tiene mucho más.</p>
     </div>
 
     <div class="dishes">
@@ -1032,15 +1129,6 @@ body::before{
 
       <article class="dish reveal">
         <div class="dish__head">
-          <h3 class="dish__name">Fruti <span class="italic">Lulada</span></h3>
-          <span class="dish__price">11,50 €</span>
-        </div>
-        <p class="dish__desc">Trozos de lulo, limón, hielo triturado y mucha leche condensada. El toque de casa que la diferencia.</p>
-        <span class="dish__tag dish__tag--lulo">Cítrico</span>
-      </article>
-
-      <article class="dish reveal">
-        <div class="dish__head">
           <h3 class="dish__name"><span class="italic">Guanabanazo</span></h3>
           <span class="dish__price">11,50 €</span>
         </div>
@@ -1056,38 +1144,11 @@ body::before{
         <span class="dish__tag dish__tag--mango">Tradicional</span>
       </article>
 
-      <article class="dish reveal">
-        <div class="dish__head">
-          <h3 class="dish__name"><span class="italic">Maracuyazo</span></h3>
-          <span class="dish__price">8,00 €</span>
-        </div>
-        <p class="dish__desc">Hielo triturado con esencia de maracuyá, mucha maracuyá y leche condensada. Ácido y dulce a la vez.</p>
-      </article>
+    </div>
 
-      <article class="dish reveal">
-        <div class="dish__head">
-          <h3 class="dish__name">Mango <span class="italic">biche</span></h3>
-          <span class="dish__price">8,50 €</span>
-        </div>
-        <p class="dish__desc">Trozos de mango verde con sal, limón, tajín, pimienta y leche condensada. Picante y refrescante.</p>
-      </article>
-
-      <article class="dish reveal">
-        <div class="dish__head">
-          <h3 class="dish__name">Súper <span class="italic">Oblea</span></h3>
-          <span class="dish__price">9,00 €</span>
-        </div>
-        <p class="dish__desc">Galleta crujiente con mermelada de mora, arequipe, crema de la casa, leche condensada y 3 frutas a elegir.</p>
-      </article>
-
-      <article class="dish reveal">
-        <div class="dish__head">
-          <h3 class="dish__name"><span class="italic">Solterita</span></h3>
-          <span class="dish__price">7,00 €</span>
-        </div>
-        <p class="dish__desc">Galleta crocante con la típica crema de solterita, leche condensada y mermelada de mora. Para los que no quieren mucho lío.</p>
-      </article>
-
+    <div class="menu__cta reveal">
+      <a class="hero__btn hero__btn--primary" href="carta.html">Ver carta completa</a>
+      <span class="menu__cta-note">15 platos · 9 bebidas · obleas, fresas, merengones</span>
     </div>
   </div>
 </section>
@@ -1097,7 +1158,6 @@ body::before{
   <div class="container">
     <div class="concept__grid">
       <div class="concept__intro">
-        <span class="concept__bg-word" aria-hidden="true">Cali</span>
         <span class="eyebrow reveal">El concepto</span>
         <h2 class="h-display reveal reveal--delay-1">
           Un pedazo de <span class="italic">Cali</span>,<br>
@@ -1143,57 +1203,105 @@ body::before{
       <div>
         <span class="eyebrow reveal">Dónde encontrarnos</span>
         <h2 class="h-display reveal reveal--delay-1">
-          Tres locales,<br>
+          Cinco locales,<br>
           el <span class="italic">mismo</span> cholado.
         </h2>
       </div>
-      <p class="reveal reveal--delay-2" style="font-family:var(--display);font-style:italic;font-size:1.3rem;color:var(--ink-soft);max-width:42ch;margin:0;line-height:1.4;">Todos abren a diario de 14:00 a 21:30. También en Madrid y Alicante.</p>
+      <p class="reveal reveal--delay-2" style="font-family:var(--display);font-style:italic;font-size:1.3rem;color:var(--ink-soft);max-width:42ch;margin:0;line-height:1.4;">Tres en Valencia, uno en Madrid, uno en Alicante. Todos abren todos los días.</p>
     </div>
 
-    <div class="locations__grid">
+    <!-- tabs de ciudad -->
+    <div class="city-tabs reveal" role="tablist">
+      <button class="city-tab is-active" role="tab" aria-selected="true" data-city="valencia">
+        <span class="city-tab__name">Valencia</span>
+        <span class="city-tab__count">3 locales</span>
+      </button>
+      <button class="city-tab" role="tab" aria-selected="false" data-city="madrid">
+        <span class="city-tab__name">Madrid</span>
+        <span class="city-tab__count">1 local</span>
+      </button>
+      <button class="city-tab" role="tab" aria-selected="false" data-city="alicante">
+        <span class="city-tab__name">Alicante</span>
+        <span class="city-tab__count">1 local</span>
+      </button>
+    </div>
 
-      <article class="location reveal">
+    <!-- Valencia (3 locales) -->
+    <div class="locations__grid is-active" data-city-panel="valencia">
+
+      <a class="location reveal" href="https://www.google.com/maps/search/?api=1&query=Carrer+de+Ciril+Amor%C3%B3s+1+46004+Val%C3%A8ncia" target="_blank" rel="noopener">
         <div class="location__num">N.º 01 · Valencia</div>
         <h3 class="location__city">Cirilo Amorós</h3>
         <div class="location__city-meta">L'Eixample</div>
         <p class="location__address">Carrer de Ciril Amorós, 1<br>46004 València</p>
         <div class="location__hours">Todos los días · 14:00 — 21:30</div>
-      </article>
+        <span class="location__cta">Ver en Google Maps</span>
+      </a>
 
-      <article class="location reveal reveal--delay-1">
+      <a class="location reveal reveal--delay-1" href="https://www.google.com/maps/search/?api=1&query=Carrer+de+Cuenca+36+46007+Val%C3%A8ncia" target="_blank" rel="noopener">
         <div class="location__num">N.º 02 · Valencia</div>
         <h3 class="location__city">Cuenca</h3>
         <div class="location__city-meta">Extramurs</div>
-        <p class="location__address">Carrer de Cuenca, 36<br>46007 València</p>
+        <p class="location__address">Carrer de Cuenca, 36, bajo izq.<br>46007 València</p>
         <div class="location__hours">Todos los días · 14:00 — 21:30</div>
-      </article>
+        <span class="location__cta">Ver en Google Maps</span>
+      </a>
 
-      <article class="location reveal reveal--delay-2">
+      <a class="location reveal reveal--delay-2" href="https://www.google.com/maps/search/?api=1&query=Carrer+del+Periodista+Azzati+4+46002+Val%C3%A8ncia" target="_blank" rel="noopener">
         <div class="location__num">N.º 03 · Valencia</div>
         <h3 class="location__city">Centro</h3>
         <div class="location__city-meta">Periodista Azzati</div>
         <p class="location__address">Carrer del Periodista Azzati, 4<br>46002 València</p>
         <div class="location__hours">Todos los días · 14:00 — 21:30</div>
-      </article>
+        <span class="location__cta">Ver en Google Maps</span>
+      </a>
 
     </div>
+
+    <!-- Madrid (1 local) -->
+    <div class="locations__grid" data-city-panel="madrid">
+
+      <a class="location reveal" href="https://www.google.com/maps/search/?api=1&query=Calle+de+San+Bernardo+20+Madrid" target="_blank" rel="noopener">
+        <div class="location__num">N.º 01 · Madrid</div>
+        <h3 class="location__city">San Bernardo</h3>
+        <div class="location__city-meta">Malasaña · Centro</div>
+        <p class="location__address">Calle de San Bernardo, 20<br>28015 Madrid</p>
+        <div class="location__hours">Todos los días · 14:00 — 21:00</div>
+        <span class="location__cta">Ver en Google Maps</span>
+      </a>
+
+    </div>
+
+    <!-- Alicante (1 local) -->
+    <div class="locations__grid" data-city-panel="alicante">
+
+      <a class="location reveal" href="https://www.google.com/maps/search/?api=1&query=Calle+San+Vicente+21+03004+Alicante" target="_blank" rel="noopener">
+        <div class="location__num">N.º 01 · Alicante</div>
+        <h3 class="location__city">San Vicente</h3>
+        <div class="location__city-meta">Centro histórico</div>
+        <p class="location__address">Calle San Vicente, 21<br>03004 Alicante</p>
+        <div class="location__hours">Todos los días · 14:00 — 21:00</div>
+        <span class="location__cta">Ver en Google Maps</span>
+      </a>
+
+    </div>
+
   </div>
 </section>
 
-<!-- ===== RESERVA / CTA ===== -->
+<!-- ===== CTA PEDIR (resumido, lo gordo está en pedir.html) ===== -->
 <section class="section book" id="contacto">
   <span class="book__bg-word" aria-hidden="true">¡pide!</span>
   <div class="book__inner">
-    <span class="book__eyebrow reveal">A domicilio</span>
+    <span class="book__eyebrow reveal">¿Antojo?</span>
     <h2 class="book__title reveal reveal--delay-1">
-      Pide por <span class="italic">WhatsApp</span><br>
-      y lo tienes en casa.
+      Pide y lo<br>
+      tienes <span class="italic">ya.</span>
     </h2>
-    <p class="book__lede reveal reveal--delay-2">También en Just Eat, Glovo y Uber Eats. Pero si llamas, te atendemos directo y va más rápido.</p>
+    <p class="book__lede reveal reveal--delay-2">WhatsApp, Glovo, Uber Eats, Just Eat. Tú eliges cómo.</p>
 
     <div class="book__buttons reveal reveal--delay-3">
-      <a class="btn btn--primary" href="https://wa.me/34613226539">WhatsApp · 613 22 65 39</a>
-      <a class="btn btn--ghost" href="https://www.instagram.com/frutinass" target="_blank" rel="noopener">@frutinass</a>
+      <a class="btn btn--primary" href="pedir.html">Ver formas de pedir</a>
     </div>
   </div>
 </section>
@@ -1400,6 +1508,29 @@ body::before{
         var t = document.querySelector(href);
         if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'}); }
       }
+    });
+  });
+
+  /* ══════════════════════════════════════════
+     TABS DE CIUDAD (Valencia / Madrid / Alicante)
+  ══════════════════════════════════════════ */
+  var cityTabs   = document.querySelectorAll('.city-tab');
+  var cityPanels = document.querySelectorAll('[data-city-panel]');
+  cityTabs.forEach(function(tab){
+    tab.addEventListener('click', function(){
+      var city = tab.dataset.city;
+      cityTabs.forEach(function(t){
+        var active = t === tab;
+        t.classList.toggle('is-active', active);
+        t.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      cityPanels.forEach(function(p){
+        p.classList.toggle('is-active', p.dataset.cityPanel === city);
+      });
+      /* dispara reveal en las cards del nuevo panel si aún no se mostraron */
+      document.querySelectorAll('[data-city-panel="'+city+'"] .reveal').forEach(function(el){
+        el.classList.add('is-visible');
+      });
     });
   });
 
