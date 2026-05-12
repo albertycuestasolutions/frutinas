@@ -127,7 +127,7 @@ body::before{
   align-items:stretch;
 }
 
-/* ===== columna izquierda — el cholado ===== */
+/* ===== columna del cholado (derecha en desktop) ===== */
 .hero__product{
   position:relative;
   width:100%;
@@ -136,6 +136,7 @@ body::before{
   align-items:center;
   justify-content:center;
   padding:clamp(90px,12vh,140px) clamp(20px,3vw,40px) clamp(40px,6vh,80px);
+  order:2;  /* en desktop va a la derecha */
 }
 /* el sello "número de catálogo" detrás del producto */
 .hero__product-mark{
@@ -167,7 +168,7 @@ body::before{
 .hero__product-index{
   position:absolute;
   bottom:clamp(28px,4vh,48px);
-  left:clamp(24px,3vw,44px);
+  right:clamp(24px,3vw,44px);
   z-index:2;
   font-family:var(--mono);
   font-size:.66rem;
@@ -178,9 +179,10 @@ body::before{
   align-items:center;
   gap:14px;
 }
-.hero__product-index::before{
+.hero__product-index::after{
   content:"";
   width:24px;height:1px;background:var(--grape);
+  order:2;
 }
 .hero__product-index strong{
   font-weight:500;
@@ -188,7 +190,7 @@ body::before{
   font-variant-numeric:tabular-nums;
 }
 
-/* ===== columna derecha — el copy que cambia ===== */
+/* ===== columna del copy (izquierda en desktop) ===== */
 .hero__copy-rail{
   position:relative;
   width:100%;
@@ -197,8 +199,9 @@ body::before{
   display:flex;
   flex-direction:column;
   justify-content:center;
-  border-left:1px solid var(--line);
-  background:linear-gradient(to right, rgba(255,140,42,0) 0%, rgba(91,29,138,.025) 100%);
+  border-right:1px solid var(--line);
+  background:linear-gradient(to left, rgba(255,140,42,0) 0%, rgba(91,29,138,.025) 100%);
+  order:1;  /* en desktop va a la izquierda */
 }
 /* cada "slide" del copy se posiciona absoluto y aparece/desaparece según fase */
 .hero__slide{
@@ -248,7 +251,7 @@ body::before{
   font-family:var(--display);
   font-weight:400;
   font-size:clamp(3.4rem,9vw,8rem);
-  line-height:.86;
+  line-height:1;  /* algo más de aire para que el highlight no toque la línea de arriba */
   letter-spacing:-.04em;
   margin:0 0 .4em;
   color:var(--ink);
@@ -258,9 +261,19 @@ body::before{
   font-style:italic;
   background:var(--lulo);
   color:var(--ink);
-  padding:0 .12em;
+  /* padding asimétrico: poco arriba para no invadir la línea anterior,
+     algo más abajo para que la barriga del color sostenga visualmente las letras */
+  padding:.02em .14em .08em;
   border-radius:6px;
   white-space:nowrap;
+  /* fundamental: si el highlight se parte en varias líneas, cada una
+     mantiene su padding y border-radius por separado, no se acumulan */
+  -webkit-box-decoration-break:clone;
+  box-decoration-break:clone;
+  /* da aire vertical para que el background no aplaste contra la línea de arriba */
+  line-height:1.1;
+  /* permite que el background sobresalga visualmente sin chocar */
+  display:inline-block;
 }
 
 .hero__small-label{
@@ -406,10 +419,10 @@ body::before{
   100%{transform:scaleY(0);transform-origin:bottom}
 }
 
-/* responsive: en móvil y tablet pequeña → producto encima, copy debajo */
+/* responsive: en móvil y tablet pequeña → cholado arriba, copy abajo */
 @media(min-width:900px){
   .hero__stage{
-    grid-template-columns:1.05fr 1fr;
+    grid-template-columns:1fr 1.05fr;
   }
 }
 @media(max-width:899px){
@@ -417,12 +430,14 @@ body::before{
   .hero__product{
     padding:90px 16px 20px;
     height:55vh;
+    order:1;  /* en móvil vuelve arriba */
   }
   .hero__copy-rail{
     padding:0 24px 40px;
     height:45vh;
-    border-left:none;
+    border-right:none;
     border-top:1px solid var(--line);
+    order:2;  /* en móvil va debajo */
   }
   .hero__slide{
     inset:0 24px 40px;
@@ -644,9 +659,13 @@ body::before{
 .concept__copy strong{
   font-style:normal;
   background:var(--lulo);
-  padding:0 .15em;
+  padding:.02em .15em .08em;
   border-radius:3px;
   color:var(--ink);
+  -webkit-box-decoration-break:clone;
+  box-decoration-break:clone;
+  display:inline-block;
+  line-height:1.1;
 }
 .concept__meta{
   display:grid;grid-template-columns:1fr 1fr;gap:24px 40px;
