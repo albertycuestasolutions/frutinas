@@ -870,7 +870,7 @@ body::before{
       <span class="hero__product-mark" aria-hidden="true">cholado</span>
       <canvas id="seq-canvas" width="1280" height="680"></canvas>
       <div class="hero__product-index">
-        <span>N.º <strong id="frameIndex">001</strong> / 192</span>
+        <span>N.º <strong id="frameIndex">001</strong> / <span id="frameTotal">281</span></span>
       </div>
     </div>
 
@@ -1204,9 +1204,11 @@ body::before{
 
   /* ══════════════════════════════════════════
      CONFIG — adapta a tus frames
+     · OPCIÓN A (141 frames, peso ligero):     totalFrames: 141
+     · OPCIÓN B (281 frames, súper fluido):    totalFrames: 281
   ══════════════════════════════════════════ */
   var CFG = {
-    totalFrames : 192,
+    totalFrames : 281,
     frameDir    : './frames/',
     framePrefix : 'frame_',
     framePad    : 4,
@@ -1225,6 +1227,8 @@ body::before{
   var slides     = document.querySelectorAll('.hero__slide');
   var scrollHint = document.getElementById('heroScrollHint');
   var frameIndex = document.getElementById('frameIndex');
+  var frameTotal = document.getElementById('frameTotal');
+  if(frameTotal) frameTotal.textContent = CFG.totalFrames;
 
   function pad(n){ return String(n).padStart(CFG.framePad,'0'); }
   function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
