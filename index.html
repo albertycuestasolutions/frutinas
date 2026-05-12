@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Image Sequence Scrubbing — Demo</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #0a0a0a; color: #eee; font-family: system-ui, sans-serif; }
+  /* La sección scrolleable: 400vh = 4 pantallas de scroll para recorrer el video */
+  .scroll-container { height: 400vh; position: relative; }
+  /* El canvas es sticky: queda fijo mientras scrolleas */
+  .sticky-stage {
+    position: sticky; top: 0;
+    height: 100vh; width: 100%;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  canvas {
+    /* Estilo en CSS pixels; el tamaño interno se ajusta por devicePixelRatio en JS */
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .hud {
+    position: fixed; bottom: 16px; left: 16px;
+    background: rgba(0,0,0,.6); padding: 8px 12px; border-radius: 6px;
+    font-size: 13px; font-variant-numeric: tabular-nums;
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-container">
+  <div class="sticky-stage">
+    <canvas id="seq"></canvas>
+  </div>
+</div>
+
+<div class="hud">Frame: <span id="hud-frame">0</span> / <span id="hud-total">0</span></div>
+
+<script>
+/* ============================================================
+   IMAGE SEQUENCE SCRUBBING — versión nítida en pantallas retina
+   ============================================================ */
+
+const TOTAL_FRAMES = 192;
+const FRAME_PATH = (i) => `frames_webp/frame_${String(i).padStart(4, '0')}.webp`;
+
+const canvas = document.getElementById('seq');
+const ctx = canvas.getContext('2d');
+const hudFrame = document.getElementById('hud-frame');
+const hudTotal = document.getElementById('hud-total');
+hudTotal.textContent = TOTAL_FRAMES;
+
+// CLAVE #1: ajustar el canvas a devicePixelRatio para que se vea nítido en retina
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width  = Math.round(rect.width  * dpr);
+  canvas.height = Math.round(rect.height * dpr);
+  // Re-render del frame actual al redimensionar
+  drawFrame(currentFrame);
+}
+
+// CLAVE #2: precargar TODAS las imágenes en memoria antes de scrollear.
+// Si no, el scroll va a ir "saltando" mientras descarga.
+const images = new Array(TOTAL_FRAMES);
+let loaded = 0;
+let currentFrame = 0;
+
+function preload() {
+  return new Promise((resolve) => {
+    for (let i = 0; i < TOTAL_FRAMES; i++) {
+      const img = new Image();
+      img.onload = () => {
+        loaded++;
+        if (loaded === TOTAL_FRAMES) resolve();
+      };
+      img.onerror = () => {
+        loaded++;
+        if (loaded === TOTAL_FRAMES) resolve();
+      };
+      img.src = FRAME_PATH(i + 1); // tus frames empiezan en 0001
+      images[i] = img;
+    }
+  });
+}
+
+// CLAVE #3: dibujar con "cover" manual, manteniendo aspect ratio
+function drawFrame(idx) {
+  const img = images[idx];
+  if (!img || !img.complete || img.naturalWidth === 0) return;
+
+  const cw = canvas.width;
+  const ch = canvas.height;
+  const iw = img.naturalWidth;
+  const ih = img.naturalHeight;
+
+  // Cover: llenar el canvas recortando lo que sobre
+  const scale = Math.max(cw / iw, ch / ih);
+  const dw = iw * scale;
+  const dh = ih * scale;
+  const dx = (cw - dw) / 2;
+  const dy = (ch - dh) / 2;
+
+  ctx.clearRect(0, 0, cw, ch);
+  ctx.drawImage(img, dx, dy, dw, dh);
+  hudFrame.textContent = idx + 1;
+}
+
+// CLAVE #4: ligar scroll → frame con requestAnimationFrame (suave, no laggy)
+let ticking = false;
+function onScroll() {
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => {
+    const container = document.querySelector('.scroll-container');
+    const rect = container.getBoundingClientRect();
+    const total = rect.height - window.innerHeight;
+    const progress = Math.min(1, Math.max(0, -rect.top / total));
+    const idx = Math.min(TOTAL_FRAMES - 1, Math.floor(progress * TOTAL_FRAMES));
+    if (idx !== currentFrame) {
+      currentFrame = idx;
+      drawFrame(idx);
+    }
+    ticking = false;
+  });
+}
+
+// Init
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('scroll', onScroll, { passive: true });
+
+(async () => {
+  resizeCanvas();
+  await preload();
+  drawFrame(0);
+})();
+</script>
+
+</body>
+</html>
